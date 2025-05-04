@@ -57,18 +57,43 @@ if (refreshToken) {
 
 /**
  * Refreshes the access token using the refresh token
+ * Implementation uses a new instance of SpotifyWebApi for refreshing tokens
+ * to avoid the issue described in: 
+ * https://github.com/thelinmichael/spotify-web-api-node/issues/147#issuecomment-331735279
+ * 
  * @returns A promise that resolves to the new access token
  */
-export const refreshAccessToken = async () => {
+export async function refreshAccessToken() {
   try {
-    const data = await spotifyApi.refreshAccessToken();
+    console.log('Refreshing Spotify access token...');
+    
+    if (!refreshToken) {
+      throw new Error('No refresh token available. Please set SPOTIFY_REFRESH_TOKEN in your environment variables.');
+    }
+    
+    // Create a new instance of SpotifyWebApi specifically for refreshing the token
+    const refreshApi = new SpotifyWebApi({
+      clientId: clientId || '',
+      clientSecret: clientSecret || '',
+      refreshToken: refreshToken,
+    });
+    
+    // Use the new instance to refresh the token
+    const data = await refreshApi.refreshAccessToken();
+    
+    // Update the original instance with the new access token
     spotifyApi.setAccessToken(data.body.access_token);
+    
+    console.log('Access token refreshed successfully');
     return data.body.access_token;
   } catch (error) {
     console.error('Error refreshing access token:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
     throw error;
   }
-};
+}
 
 export default spotifyApi;
 
