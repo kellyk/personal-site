@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
 import spotifyApi, { refreshAccessToken } from '@/lib/spotify';
+import { TrackObjectFull, EpisodeObject } from 'spotify-web-api-node';
+
+// Type guard to check if the item is a track
+function isTrack(item: any): item is TrackObjectFull {
+  return item && 'artists' in item && 'album' in item;
+}
 
 export const dynamic = 'force-dynamic'; // Ensure the route is never cached
 
@@ -21,17 +27,38 @@ export async function GET() {
 
     const item = response.body.item;
     
-    // Extract relevant track data
-    const track = {
+    // Common properties for both track and episode
+    const commonData = {
       isPlaying: response.body.is_playing,
       title: item.name,
-      artist: item.artists.map(artist => artist.name).join(', '),
-      album: item.album.name,
-      albumImageUrl: item.album.images[0]?.url,
       songUrl: item.external_urls.spotify
     };
-
-    return NextResponse.json(track, { status: 200 });
+    
+    // Check if it's a track or an episode and extract relevant data
+    if (isTrack(item)) {
+      // It's a music track
+      const trackData = {
+        ...commonData,
+        artist: item.artists.map(artist => artist.name).join(', '),
+        album: item.album.name,
+        albumImageUrl: item.album.images[0]?.url,
+        type: 'track'
+      };
+      
+      return NextResponse.json(trackData, { status: 200 });
+    } else {
+      // It's a podcast episode (cast to EpisodeObject for type safety)
+      const episode = item as unknown as EpisodeObject;
+      const episodeData = {
+        ...commonData,
+        show: episode.show?.name || 'Unknown Show',
+        publisher: episode.show?.publisher || 'Unknown Publisher',
+        albumImageUrl: episode.images?.[0]?.url,
+        type: 'episode'
+      };
+      
+      return NextResponse.json(episodeData, { status: 200 });
+    }
   } catch (error) {
     console.error('Error fetching currently playing track:', error);
     return NextResponse.json(
