@@ -2,14 +2,21 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image'
+import React from 'react';
 
-const Button = ({ children, ...props }) => (
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+}
+
+const Button = ({ children, ...props }: ButtonProps) => (
   <button className="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-200" {...props}>
     {children}
   </button>
 );
 
-const Input = ({ ...props }) => (
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = ({ ...props }: InputProps) => (
   <input className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-300" {...props} />
 );
 
