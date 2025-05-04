@@ -28,14 +28,24 @@ export async function GET() {
     // Cast the item to our utility type that allows safe type checking
     const item = response.body.item as SpotifyItemOrUnknown;
 
+    // Helper function to safely get nested properties
+    const getSafeSpotifyUrl = (item: SpotifyItemOrUnknown): string | undefined => {
+      if (!item || typeof item !== 'object') return undefined;
+      if (!('external_urls' in item)) return undefined;
+      
+      const urls = item.external_urls;
+      if (!urls || typeof urls !== 'object') return undefined;
+      
+      // Now TypeScript knows urls is an object, so we can safely use the 'in' operator
+      return 'spotify' in urls ? urls.spotify as string : undefined;
+    };
+
     // Common properties for both track and episode
     // Safely access properties that might not exist on unknown types
     const commonData: Partial<NowPlayingResponse> = {
       isPlaying: response.body.is_playing,
       title: item && 'name' in item ? item.name as string : 'Unknown Track',
-      songUrl: item && 'external_urls' in item && item.external_urls && 'spotify' in item.external_urls
-        ? item.external_urls.spotify as string
-        : undefined
+      songUrl: getSafeSpotifyUrl(item)
     };
 
     // Check if it's a track or an episode and extract relevant data
