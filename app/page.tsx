@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image'
 import React from 'react';
+import { useSpotify } from "@/lib/hooks/useSpotify";
 
 // Define Project interface
 interface Project {
@@ -25,6 +26,37 @@ const Input = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-300" {...props} />
 );
 
+// Spotify Now Playing component
+const NowPlaying = () => {
+  const { data, isLoading, error } = useSpotify();
+
+  if (isLoading) {
+    return <div className="animate-pulse">🎧 Loading music...</div>;
+  }
+
+  if (error) {
+    return <div>🎧 Couldn&apos;t load music data</div>;
+  }
+
+  if (!data?.isPlaying) {
+    return <div>🎧 Not playing anything right now</div>;
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2 mb-2">
+      <div className="animate-pulse">🎧</div>
+      <span>Now playing: </span>
+      <a 
+        href={data.songUrl} 
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-pink-600 hover:underline flex items-center"
+      >
+        {data.title} – {data.artist}
+      </a>
+    </div>
+  );
+};
 export default function PersonalWebsite() {
   const [email, setEmail] = useState("");
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
@@ -56,12 +88,12 @@ export default function PersonalWebsite() {
             <p className="text-lg mt-3 text-gray-700">Fullstack Engineer | Nature Lover | Dog Enthusiast</p>
           </div>
           <Image
-  src="/bae.jpg" // Path starts with / and is relative to the public directory
-  alt="Description of the image"
-  width={300} // Specify the width you want
-  height={200} // Specify the height you want
-  // Or you can use layout="fill" if you want the image to fill its container
-/>
+          src="/bae.jpg" // Path starts with / and is relative to the public directory
+          alt="Description of the image"
+          width={300} // Specify the width you want
+          height={200} // Specify the height you want
+          // Or you can use layout="fill" if you want the image to fill its container
+        />
         </div>
         <motion.div
           className="absolute -bottom-4 left-0 right-0 h-4 bg-[url('https://www.transparenttextures.com/patterns/knitted-netting.png')] opacity-10"
@@ -154,76 +186,75 @@ export default function PersonalWebsite() {
           </div>
         </motion.section>
 
-<motion.section
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.6, duration: 0.6 }}
->
-  <h2 className="text-3xl font-semibold text-pink-700 mb-4">More About Me</h2>
-  <p className="mb-6 text-lg">
-    Outside of tech, I’m always in motion or making something with my hands. You can follow along on
-    <a href="https://instagram.com/freya.the.boston" target="_blank" className="text-indigo-700 underline"> Freya the Boston</a>,
-    <a href="https://instagram.com/kelly.makes.things" target="_blank" className="text-indigo-700 underline"> Kelly Makes Things</a>,
-    or <a href="https://www.strava.com/athletes/13003172" target="_blank" className="text-indigo-700 underline">my Strava profile</a>.
-  </p>
-  <div className="relative overflow-hidden">
-    <button
-      onClick={() => setSlideIndex((prev) => Math.max(prev - 1, 0))}
-      className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
-    >
-      ◀
-    </button>
-    <div className="flex gap-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
-      {[
-        "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
-        "https://images.unsplash.com/photo-1503762546558-801f7a8feb6c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJvc3RvbiUyMHRlcnJpZXJ8ZW58MHx8MHx8fDI%3D",
-        "https://images.unsplash.com/photo-1550376026-7375b92bb318?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8WUFSTnxlbnwwfHwwfHx8Mg%3D%3D",
-        "https://images.unsplash.com/photo-1557868363-e58c250144cf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-      ].map((src, i) => (
-        <img
-          key={i}
-          src={src}
-          alt="Personal"
-          onClick={() => setActivePhoto(src)}
-          className="rounded-lg shadow-md object-cover w-full h-48 max-w-[33%] cursor-pointer hover:opacity-90 transition"
-        />
-      ))}
-    </div>
-    <button
-      onClick={() => setSlideIndex((prev) => Math.min(prev + 1, Math.floor((4 - 3)) ))}
-      className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
-    >
-      ▶
-    </button>
-  </div>
-
-  <AnimatePresence>
-    {activePhoto && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center"
-      >
-        <motion.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0.9 }}
-          className="relative max-w-3xl w-full p-4"
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
         >
-          <button
-            onClick={() => setActivePhoto(null)}
-            className="absolute top-2 right-4 text-white text-2xl hover:text-gray-300"
-          >
-            ×
-          </button>
-          <img src={activePhoto} alt="Zoomed" className="rounded-lg shadow-lg w-full max-h-[90vh] object-contain" />
-        </motion.div>
-      </motion.div>
-    )}
-  </AnimatePresence>
-</motion.section>
-  <motion.section
+          <h2 className="text-3xl font-semibold text-pink-700 mb-4">More About Me</h2>
+          <p className="mb-6 text-lg">
+            Outside of tech, I’m always in motion or making something with my hands. You can follow along on
+            Outside of tech, I&apos;m always in motion or making something with my hands. You can follow along on
+            <a href="https://instagram.com/freya.the.boston" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline"> Freya the Boston</a>,
+            <a href="https://instagram.com/kelly.makes.things" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline"> Kelly Makes Things</a>,
+            or <a href="https://www.strava.com/athletes/13003172" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline">my Strava profile</a>.
+          </p>
+          <div className="relative overflow-hidden">
+            <button
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
+            >
+              ◀
+            </button>
+            <div className="flex gap-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+              {[
+                "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
+                "https://images.unsplash.com/photo-1503762546558-801f7a8feb6c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJvc3RvbiUyMHRlcnJpZXJ8ZW58MHx8MHx8fDI%3D",
+                "https://images.unsplash.com/photo-1550376026-7375b92bb318?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8WUFSTnxlbnwwfHwwfHx8Mg%3D%3D",
+                "https://images.unsplash.com/photo-1557868363-e58c250144cf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              ].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt="Personal"
+                  onClick={() => setActivePhoto(src)}
+                  className="rounded-lg shadow-md object-cover w-full h-48 max-w-[33%] cursor-pointer hover:opacity-90 transition"
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => setSlideIndex((prev) => Math.min(prev + 1, Math.floor((4 - 3))))}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
+            >
+              ▶
+            </button>
+          </div>
+          <AnimatePresence>
+            {activePhoto && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center"
+              >
+                <motion.div
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0.9 }}
+                  className="relative max-w-3xl w-full p-4"
+                >
+                  <button
+                    onClick={() => setActivePhoto(null)}
+                    className="absolute top-2 right-4 text-white text-2xl hover:text-gray-300"
+                  >
+                    ×
+                  </button>
+                  <img src={activePhoto} alt="Zoomed" className="rounded-lg shadow-lg w-full max-h-[90vh] object-contain" />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.section>
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
@@ -239,11 +270,9 @@ export default function PersonalWebsite() {
             <Button type="submit">Get in touch</Button>
           </form>
         </motion.section>
-
       </main>
-
       <footer className="text-center mt-16 py-6 bg-gradient-to-r from-indigo-100 to-pink-100 text-sm text-gray-600">
-        <div className="animate-pulse">🎧 Now playing: Fleetwood Mac – "Dreams"</div>
+        <NowPlaying />
         &copy; {new Date().getFullYear()} Kelly King. Made with 💖 and curiosity.
       </footer>
     </div>
