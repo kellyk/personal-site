@@ -1,15 +1,29 @@
 import SpotifyWebApi from 'spotify-web-api-node';
 
-// These values should be moved to environment variables in a production environment
-const clientId = process.env.SPOTIFY_CLIENT_ID || '';
-const clientSecret = process.env.SPOTIFY_CLIENT_SECRET || '';
-const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN || '';
+// Get Spotify credentials from Next.js environment variables
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
+const configuredRedirectUri = process.env.SPOTIFY_REDIRECT_URI;
 
-// Determine if we're in production or development
+// Check for missing required credentials
+if (!clientId) {
+  console.error('Missing SPOTIFY_CLIENT_ID environment variable');
+}
+
+if (!clientSecret) {
+  console.error('Missing SPOTIFY_CLIENT_SECRET environment variable');
+}
+
+if (!refreshToken) {
+  console.warn('Missing SPOTIFY_REFRESH_TOKEN environment variable - authentication may fail');
+}
+
+// Determine environment (development or production)
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 // Set the appropriate redirect URI based on environment
-let redirectUri = process.env.SPOTIFY_REDIRECT_URI;
+let redirectUri = configuredRedirectUri;
 
 if (!redirectUri) {
   if (isDevelopment) {
@@ -17,19 +31,22 @@ if (!redirectUri) {
     redirectUri = 'http://localhost:3000/api/spotify/callback';
   } else {
     // For production, use the Vercel URL if available
-    const vercelUrl = process.env.VERCEL_URL || 'personal-site-g5p040ss3-kngs-projects-a525a851.vercel.app';
+    const vercelUrl = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL;
     
-    // Ensure we use https in production
-    redirectUri = `https://${vercelUrl}/api/spotify/callback`;
+    if (vercelUrl) {
+      // Ensure we use https in production
+      redirectUri = `https://${vercelUrl}/api/spotify/callback`;
+    } else {
+      console.warn('No SPOTIFY_REDIRECT_URI or VERCEL_URL provided, using default fallback');
+      redirectUri = 'https://personal-site-g5p040ss3-kngs-projects-a525a851.vercel.app/api/spotify/callback';
+    }
   }
 }
 
-console.log(`Spotify configured with redirectUri: ${redirectUri}`);
-
 // Initialize the Spotify API client
 const spotifyApi = new SpotifyWebApi({
-  clientId,
-  clientSecret,
+  clientId: clientId || '',
+  clientSecret: clientSecret || '',
   redirectUri,
 });
 
