@@ -80,14 +80,22 @@ export interface SpotifyCurrentlyPlayingResponse {
 // 2. Type Guards
 //==============================
 
+// Basic unknown item type with minimal properties we check for
+export interface UnknownSpotifyItem {
+  type?: string;
+  name?: string;
+  external_urls?: SpotifyExternalUrls;
+  [key: string]: unknown;
+}
+
 // Type guard to check if the item is a track
-export function isSpotifyTrack(item: any): item is SpotifyTrackObject {
-  return item && item.type === 'track' && 'artists' in item && 'album' in item;
+export function isSpotifyTrack(item: UnknownSpotifyItem): item is SpotifyTrackObject {
+  return Boolean(item && item.type === 'track' && 'artists' in item && 'album' in item);
 }
 
 // Type guard to check if the item is an episode
-export function isSpotifyEpisode(item: any): item is SpotifyEpisodeObject {
-  return item && item.type === 'episode' && 'show' in item;
+export function isSpotifyEpisode(item: UnknownSpotifyItem): item is SpotifyEpisodeObject {
+  return Boolean(item && item.type === 'episode' && 'show' in item);
 }
 
 //==============================

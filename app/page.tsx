@@ -46,8 +46,8 @@ const NowPlaying = () => {
     <div className="flex items-center justify-center gap-2 mb-2">
       <div className="animate-pulse">🎧</div>
       <span>Now playing: </span>
-      <a 
-        href={data.songUrl} 
+      <a
+        href={data.songUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="font-medium text-pink-600 hover:underline flex items-center"
@@ -87,13 +87,12 @@ export default function PersonalWebsite() {
             <h1 className="text-5xl font-black font-sans text-pink-600 tracking-wide">Kelly King</h1>
             <p className="text-lg mt-3 text-gray-700">Fullstack Engineer | Nature Lover | Dog Enthusiast</p>
           </div>
-          <Image
-          src="/bae.jpg" // Path starts with / and is relative to the public directory
-          alt="Description of the image"
-          width={300} // Specify the width you want
-          height={200} // Specify the height you want
-          // Or you can use layout="fill" if you want the image to fill its container
-        />
+            <Image
+              src="/bae.jpg"
+              alt="Kelly and Freya in Wales"
+              width={300}
+              height={200}
+            />
         </div>
         <motion.div
           className="absolute -bottom-4 left-0 right-0 h-4 bg-[url('https://www.transparenttextures.com/patterns/knitted-netting.png')] opacity-10"
@@ -129,7 +128,13 @@ export default function PersonalWebsite() {
                 onClick={() => setActiveProject(project)}
                 className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer"
               >
-                <img src={project.img} alt={project.title} className="h-40 w-full object-cover" />
+                <Image
+                  src={project.img}
+                  alt={project.title}
+                  width={400}
+                  height={300}
+                  className="h-40 w-full object-cover"
+                />
                 <div className="p-4">
                   <h3 className="text-xl font-bold text-indigo-700">{project.title}</h3>
                   <p className="text-sm text-gray-600 mt-1">{project.desc}</p>
@@ -158,10 +163,12 @@ export default function PersonalWebsite() {
                   >
                     ×
                   </button>
-                  <img
+                  <Image
                     src={activeProject.img}
                     alt={activeProject.title}
-                    className="w-full h-48 object-cover rounded-md mb-4"
+                    width={400}
+                    height={300}
+                      className="w-full h-48 object-cover rounded-md mb-4"
                   />
                   <h3 className="text-2xl font-bold text-indigo-700 mb-2">{activeProject.title}</h3>
                   <p className="text-gray-700 mb-2">{activeProject.desc}</p>
@@ -212,10 +219,12 @@ export default function PersonalWebsite() {
                 "https://images.unsplash.com/photo-1550376026-7375b92bb318?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8WUFSTnxlbnwwfHwwfHx8Mg%3D%3D",
                 "https://images.unsplash.com/photo-1557868363-e58c250144cf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               ].map((src, i) => (
-                <img
+                 <Image
                   key={i}
                   src={src}
                   alt="Personal"
+                  width={400}
+                  height={300}
                   onClick={() => setActivePhoto(src)}
                   className="rounded-lg shadow-md object-cover w-full h-48 max-w-[33%] cursor-pointer hover:opacity-90 transition"
                 />
@@ -248,7 +257,13 @@ export default function PersonalWebsite() {
                   >
                     ×
                   </button>
-                  <img src={activePhoto} alt="Zoomed" className="rounded-lg shadow-lg w-full max-h-[90vh] object-contain" />
+                   {activePhoto ? (<Image
+                    src={activePhoto}
+                    alt="Zoomed"
+                    width={1200}
+                    height={900}
+                    className="rounded-lg shadow-lg w-full max-h-[90vh] object-contain"
+                  />): null}
                 </motion.div>
               </motion.div>
             )}

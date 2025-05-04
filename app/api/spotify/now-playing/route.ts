@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import spotifyApi, { refreshAccessToken } from '@/lib/spotify';
-import { 
-  isSpotifyTrack, 
-  isSpotifyEpisode, 
+import {
+  isSpotifyTrack,
+  isSpotifyEpisode,
   SpotifyItem,
   NowPlayingResponse,
-  SpotifyCurrentlyPlayingResponse
 } from '@/lib/types/spotify';
 
 export const dynamic = 'force-dynamic'; // Ensure the route is never cached
@@ -17,24 +16,24 @@ export async function GET() {
 
     // Fetch the user's currently playing track
     const response = await spotifyApi.getMyCurrentPlayingTrack();
-    
+
     // If no track is playing
     if (response.statusCode === 204 || !response.body || !response.body.item) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         isPlaying: false,
-        message: 'Not playing anything currently' 
+        message: 'Not playing anything currently'
       }, { status: 200 });
     }
 
     const item = response.body.item as SpotifyItem;
-    
+
     // Common properties for both track and episode
     const commonData: Partial<NowPlayingResponse> = {
       isPlaying: response.body.is_playing,
       title: item.name,
       songUrl: item.external_urls.spotify
     };
-    
+
     // Check if it's a track or an episode and extract relevant data
     if (isSpotifyTrack(item)) {
       // It's a music track
@@ -45,7 +44,7 @@ export async function GET() {
         albumImageUrl: item.album.images[0]?.url,
         type: 'track'
       };
-      
+
       return NextResponse.json(trackData, { status: 200 });
     } else if (isSpotifyEpisode(item)) {
       // It's a podcast episode
@@ -56,7 +55,7 @@ export async function GET() {
         albumImageUrl: item.images?.[0]?.url,
         type: 'episode'
       };
-      
+
       return NextResponse.json(episodeData, { status: 200 });
     } else {
       // Unknown item type
@@ -68,11 +67,11 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching currently playing track:', error);
     return NextResponse.json(
-      { 
+      {
         isPlaying: false,
         error: 'Error fetching Spotify data',
-        message: (error as Error).message 
-      }, 
+        message: (error as Error).message
+      },
       { status: 500 }
     );
   }

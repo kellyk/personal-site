@@ -42,10 +42,8 @@ export async function GET(request: NextRequest) {
     // Exchange the authorization code for access and refresh tokens
     const data = await spotifyApi.authorizationCodeGrant(code);
     
-    // Get the tokens
-    const accessToken = data.body.access_token;
-    const refreshToken = data.body.refresh_token;
-    const expiresIn = data.body.expires_in;
+    // Get the tokens - we only need refresh token and expiration time for display
+    const { refresh_token: refreshToken, expires_in: expiresIn } = data.body;
 
     // Return a page displaying the refresh token
     return new NextResponse(
