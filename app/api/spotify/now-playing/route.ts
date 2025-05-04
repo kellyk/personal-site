@@ -7,7 +7,34 @@ import {
   NowPlayingResponse,
 } from '@/lib/types/spotify';
 
+// Route configuration
 export const dynamic = 'force-dynamic'; // Ensure the route is never cached
+export const runtime = 'edge'; // Use edge runtime for better performance
+
+// Bypass Vercel authentication for this API route
+export const config = {
+  api: {
+    bodyParser: false,
+    externalResolver: true,
+  },
+};
+
+// Helper function to add CORS headers
+function setCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET,OPTIONS');
+  response.headers.set(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+  return response;
+}
+
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS() {
+  return setCorsHeaders(NextResponse.json({}, { status: 200 }));
+}
 
 export async function GET() {
   try {
@@ -19,12 +46,12 @@ export async function GET() {
 
     // If no track is playing
     if (response.statusCode === 204 || !response.body || !response.body.item) {
-      return NextResponse.json({
+      return setCorsHeaders(NextResponse.json({
         isPlaying: false,
         message: 'Not playing anything currently'
-      }, { status: 200 });
+      }, { status: 200 }));
     }
-
+    
     // Cast the item to our utility type that allows safe type checking
     const item = response.body.item as SpotifyItemOrUnknown;
 
@@ -80,14 +107,26 @@ export async function GET() {
     }
   } catch (error) {
     console.error('Error fetching currently playing track:', error);
-    return NextResponse.json(
+    // Handle authentication errors with a more specific status code and message
+    let status = 500;
+    let errorMessage = 'Error fetching Spotify data';
+    
+    if (error instanceof Error && error.message.includes('authentication')) {
+      status = 401;
+      errorMessage = 'Spotify authentication error';
+      console.error('Spotify authentication error:', error);
+    } else {
+      console.error('Error fetching currently playing track:', error);
+    }
+    
+    return setCorsHeaders(NextResponse.json(
       {
         isPlaying: false,
-        error: 'Error fetching Spotify data',
+        error: errorMessage,
         message: (error as Error).message
       },
-      { status: 500 }
-    );
+      { status }
+    ));
   }
 }
 
