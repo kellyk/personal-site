@@ -4,6 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image'
 import React from 'react';
 
+// Define Project interface
+interface Project {
+  img: string;
+  title: string;
+  desc: string;
+  details: string;
+}
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
@@ -22,12 +29,12 @@ const Input = ({ ...props }: InputProps) => (
 
 export default function PersonalWebsite() {
   const [email, setEmail] = useState("");
-  const [activePhoto, setActivePhoto] = useState(null);
-  const [activeProject, setActiveProject] = useState(null);
+  const [activePhoto, setActivePhoto] = useState<string | null>(null);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
 
 
-  const projects = [
+  const projects: Project[] = [
     {
       img: "https://images.unsplash.com/photo-1569230919100-d3fd5e1132f4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFiaXRzfGVufDB8fDB8fHwy",
       title: "Wellness Tracker",
@@ -218,6 +225,22 @@ export default function PersonalWebsite() {
     )}
   </AnimatePresence>
 </motion.section>
+  <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+        >
+          <h2 className="text-3xl font-semibold text-pink-700 mb-4">Contact</h2>
+          <form className="flex flex-col gap-4 max-w-md">
+            <Input
+              type="email"
+              placeholder="Your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <Button type="submit">Get in touch</Button>
+          </form>
+        </motion.section>
 
       </main>
 
@@ -228,4 +251,3 @@ export default function PersonalWebsite() {
     </div>
   );
 }
-
