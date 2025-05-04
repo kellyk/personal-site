@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import spotifyApi, { refreshAccessToken } from '@/lib/spotify';
-import { TrackObjectFull, EpisodeObject } from 'spotify-web-api-node';
-
-// Type guard to check if the item is a track
-function isTrack(item: any): item is TrackObjectFull {
-  return item && 'artists' in item && 'album' in item;
-}
+import { 
+  isSpotifyTrack, 
+  isSpotifyEpisode, 
+  SpotifyItem,
+  NowPlayingResponse,
+  SpotifyCurrentlyPlayingResponse
+} from '@/lib/types/spotify';
 
 export const dynamic = 'force-dynamic'; // Ensure the route is never cached
 
@@ -25,20 +26,20 @@ export async function GET() {
       }, { status: 200 });
     }
 
-    const item = response.body.item;
+    const item = response.body.item as SpotifyItem;
     
     // Common properties for both track and episode
-    const commonData = {
+    const commonData: Partial<NowPlayingResponse> = {
       isPlaying: response.body.is_playing,
       title: item.name,
       songUrl: item.external_urls.spotify
     };
     
     // Check if it's a track or an episode and extract relevant data
-    if (isTrack(item)) {
+    if (isSpotifyTrack(item)) {
       // It's a music track
-      const trackData = {
-        ...commonData,
+      const trackData: NowPlayingResponse = {
+        ...commonData as NowPlayingResponse,
         artist: item.artists.map(artist => artist.name).join(', '),
         album: item.album.name,
         albumImageUrl: item.album.images[0]?.url,
@@ -46,18 +47,23 @@ export async function GET() {
       };
       
       return NextResponse.json(trackData, { status: 200 });
-    } else {
-      // It's a podcast episode (cast to EpisodeObject for type safety)
-      const episode = item as unknown as EpisodeObject;
-      const episodeData = {
-        ...commonData,
-        show: episode.show?.name || 'Unknown Show',
-        publisher: episode.show?.publisher || 'Unknown Publisher',
-        albumImageUrl: episode.images?.[0]?.url,
+    } else if (isSpotifyEpisode(item)) {
+      // It's a podcast episode
+      const episodeData: NowPlayingResponse = {
+        ...commonData as NowPlayingResponse,
+        show: item.show?.name || 'Unknown Show',
+        publisher: item.show?.publisher || 'Unknown Publisher',
+        albumImageUrl: item.images?.[0]?.url,
         type: 'episode'
       };
       
       return NextResponse.json(episodeData, { status: 200 });
+    } else {
+      // Unknown item type
+      return NextResponse.json({
+        isPlaying: response.body.is_playing,
+        message: 'Currently playing unsupported media type'
+      }, { status: 200 });
     }
   } catch (error) {
     console.error('Error fetching currently playing track:', error);
