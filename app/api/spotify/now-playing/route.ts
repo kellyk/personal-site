@@ -3,7 +3,7 @@ import spotifyApi, { refreshAccessToken } from '@/lib/spotify';
 import {
   isSpotifyTrack,
   isSpotifyEpisode,
-  SpotifyItem,
+  SpotifyItemOrUnknown,
   NowPlayingResponse,
 } from '@/lib/types/spotify';
 
@@ -25,13 +25,17 @@ export async function GET() {
       }, { status: 200 });
     }
 
-    const item = response.body.item as SpotifyItem;
+    // Cast the item to our utility type that allows safe type checking
+    const item = response.body.item as SpotifyItemOrUnknown;
 
     // Common properties for both track and episode
+    // Safely access properties that might not exist on unknown types
     const commonData: Partial<NowPlayingResponse> = {
       isPlaying: response.body.is_playing,
-      title: item.name,
-      songUrl: item.external_urls.spotify
+      title: item && 'name' in item ? item.name as string : 'Unknown Track',
+      songUrl: item && 'external_urls' in item && item.external_urls && 'spotify' in item.external_urls
+        ? item.external_urls.spotify as string
+        : undefined
     };
 
     // Check if it's a track or an episode and extract relevant data
