@@ -46,13 +46,13 @@ const NowPlaying = () => {
     <div className="flex items-center justify-center gap-2 mb-2">
       <div className="animate-pulse">🎧</div>
       <span>Now playing: </span>
-      <a 
-        href={data.songUrl} 
+      <a
+        href={data.songUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="font-medium text-pink-600 hover:underline flex items-center"
       >
-        {data.title} – {data.artist}
+        {data.title}
       </a>
     </div>
   );

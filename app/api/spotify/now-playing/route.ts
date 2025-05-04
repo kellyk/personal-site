@@ -10,24 +10,21 @@ export async function GET() {
 
     // Fetch the user's currently playing track
     const response = await spotifyApi.getMyCurrentPlayingTrack();
-    
+
     // If no track is playing
     if (response.statusCode === 204 || !response.body || !response.body.item) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         isPlaying: false,
-        message: 'Not playing anything currently' 
+        message: 'Not playing anything currently'
       }, { status: 200 });
     }
 
     const item = response.body.item;
-    
+
     // Extract relevant track data
     const track = {
       isPlaying: response.body.is_playing,
       title: item.name,
-      artist: item.artists.map(artist => artist.name).join(', '),
-      album: item.album.name,
-      albumImageUrl: item.album.images[0]?.url,
       songUrl: item.external_urls.spotify
     };
 
@@ -35,11 +32,11 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching currently playing track:', error);
     return NextResponse.json(
-      { 
+      {
         isPlaying: false,
         error: 'Error fetching Spotify data',
-        message: (error as Error).message 
-      }, 
+        message: (error as Error).message
+      },
       { status: 500 }
     );
   }
