@@ -21,9 +21,7 @@ const Button = ({ children, ...props }: ButtonProps) => (
   </button>
 );
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
-
-const Input = ({ ...props }: InputProps) => (
+const Input = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
   <input className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-300" {...props} />
 );
 
