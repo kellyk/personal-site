@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image'
 import React from 'react';
@@ -28,6 +28,22 @@ export default function PersonalWebsite() {
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [activeProject, setActiveProject] = useState<ProjectType | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
+
+  // Handle escape key press to close lightboxes
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActivePhoto(null);
+        setActiveProject(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const projects: ProjectType[] = [
     {
