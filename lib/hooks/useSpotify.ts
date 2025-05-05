@@ -18,19 +18,19 @@ export function useSpotify(pollInterval = DEFAULT_POLL_INTERVAL) {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       const response = await fetch('/api/spotify/now-playing');
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
       }
-      
+
       const data: SpotifyTrack = await response.json();
       setState({ data, isLoading: false, error: null });
     } catch (error) {
       console.error('Error fetching Spotify data:', error);
-      setState({ 
-        data: null, 
-        isLoading: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred' 
+      setState({
+        data: null,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
       });
     }
   };

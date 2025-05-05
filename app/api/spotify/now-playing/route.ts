@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import spotifyApi, { refreshAccessToken } from '@/lib/spotify';
-
 export const dynamic = 'force-dynamic'; // Ensure the route is never cached
 
 export async function GET() {
@@ -25,7 +24,8 @@ export async function GET() {
     const track = {
       isPlaying: response.body.is_playing,
       title: item.name,
-      songUrl: item.external_urls.spotify
+      songUrl: item.external_urls.spotify,
+      ...item
     };
 
     return NextResponse.json(track, { status: 200 });

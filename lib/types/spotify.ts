@@ -2,7 +2,7 @@
 export interface SpotifyTrack {
   isPlaying: boolean;
   title?: string;
-  artist?: string;
+  artists?: [{name: string}];
   album?: string;
   albumImageUrl?: string;
   songUrl?: string;
