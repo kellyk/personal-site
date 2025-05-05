@@ -8,6 +8,30 @@ import { ProjectType } from "@/types/Project";
 import { Project } from "@/components/ui/projects/Project";
 import WorkExperience from "@/components/ui/experience/WorkExperience";
 
+const projects: ProjectType[] = [
+  {
+    img: "https://images.unsplash.com/photo-1569230919100-d3fd5e1132f4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFiaXRzfGVufDB8fDB8fHwy",
+    title: "Wellness Tracker",
+    desc: "A self-care dashboard that visualizes mood, energy, and habits.",
+    details: "Built with React, Chart.js, and Firebase. Helps users reflect on well-being trends and set goals."
+  },
+  {
+    img: "https://images.unsplash.com/photo-1600284536251-8bb98db53468?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Trail Mapper",
+    desc: "A hiking and running route planner powered by OpenStreetMap.",
+    details: "Maps trails with GPX import/export, elevation profiles, and offline caching support."
+  }
+];
+
+// Extract photos array to a constant for better management
+const photos = [
+  "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1503762546558-801f7a8feb6c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJvc3RvbiUyMHRlcnJpZXJ8ZW58MHx8MHx8fDI%3D",
+  "https://images.unsplash.com/photo-1550376026-7375b92bb318?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8WUFSTnxlbnwwfHwwfHx8Mg%3D%3D",
+  "https://images.unsplash.com/photo-1557868363-e58c250144cf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+];
+
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
@@ -28,6 +52,8 @@ export default function PersonalWebsite() {
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [activeProject, setActiveProject] = useState<ProjectType | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
+  const [activeProjectIndex, setActiveProjectIndex] = useState<number>(0);
+  const [activePhotoIndex, setActivePhotoIndex] = useState<number>(0);
 
   // Handle escape key press to close lightboxes
   useEffect(() => {
@@ -45,20 +71,50 @@ export default function PersonalWebsite() {
     };
   }, []);
 
-  const projects: ProjectType[] = [
-    {
-      img: "https://images.unsplash.com/photo-1569230919100-d3fd5e1132f4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFiaXRzfGVufDB8fDB8fHwy",
-      title: "Wellness Tracker",
-      desc: "A self-care dashboard that visualizes mood, energy, and habits.",
-      details: "Built with React, Chart.js, and Firebase. Helps users reflect on well-being trends and set goals."
-    },
-    {
-      img: "https://images.unsplash.com/photo-1600284536251-8bb98db53468?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-      title: "Trail Mapper",
-      desc: "A hiking and running route planner powered by OpenStreetMap.",
-      details: "Maps trails with GPX import/export, elevation profiles, and offline caching support."
-    }
-  ];
+  // Handle arrow key navigation for projects lightbox
+  useEffect(() => {
+    const handleProjectNavigation = (e: KeyboardEvent) => {
+      if (!activeProject) return;
+
+      if (e.key === 'ArrowRight') {
+        const nextIndex = (activeProjectIndex + 1) % projects.length;
+        setActiveProjectIndex(nextIndex);
+        setActiveProject(projects[nextIndex]);
+      } else if (e.key === 'ArrowLeft') {
+        const prevIndex = (activeProjectIndex - 1 + projects.length) % projects.length;
+        setActiveProjectIndex(prevIndex);
+        setActiveProject(projects[prevIndex]);
+      }
+    };
+
+    window.addEventListener('keydown', handleProjectNavigation);
+    return () => {
+      window.removeEventListener('keydown', handleProjectNavigation);
+    };
+  }, [activeProject, activeProjectIndex]);
+
+  // Handle arrow key navigation for photos lightbox
+  useEffect(() => {
+    const handlePhotoNavigation = (e: KeyboardEvent) => {
+      if (!activePhoto) return;
+
+      if (e.key === 'ArrowRight') {
+        const nextIndex = (activePhotoIndex + 1) % photos.length;
+        setActivePhotoIndex(nextIndex);
+        setActivePhoto(photos[nextIndex]);
+      } else if (e.key === 'ArrowLeft') {
+        const prevIndex = (activePhotoIndex - 1 + photos.length) % photos.length;
+        setActivePhotoIndex(prevIndex);
+        setActivePhoto(photos[prevIndex]);
+      }
+    };
+
+    window.addEventListener('keydown', handlePhotoNavigation);
+    return () => {
+      window.removeEventListener('keydown', handlePhotoNavigation);
+    };
+  }, [activePhoto, activePhotoIndex]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-indigo-50 text-gray-800 font-sans">
@@ -116,7 +172,10 @@ export default function PersonalWebsite() {
               <Project
                 key={i}
                 project={project}
-                onClick={() => setActiveProject(project)}
+                onClick={() => {
+                  setActiveProjectIndex(i);
+                  setActiveProject(project);
+                }}
               />
             ))}
           </div>
@@ -190,25 +249,23 @@ export default function PersonalWebsite() {
               ◀
             </button>
             <div className="flex gap-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
-              {[
-                "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
-                "https://images.unsplash.com/photo-1503762546558-801f7a8feb6c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJvc3RvbiUyMHRlcnJpZXJ8ZW58MHx8MHx8fDI%3D",
-                "https://images.unsplash.com/photo-1550376026-7375b92bb318?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8WUFSTnxlbnwwfHwwfHx8Mg%3D%3D",
-                "https://images.unsplash.com/photo-1557868363-e58c250144cf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              ].map((src, i) => (
+              {photos.map((src, i) => (
                  <Image
                   key={i}
                   src={src}
                   alt="Personal"
                   width={400}
                   height={300}
-                  onClick={() => setActivePhoto(src)}
+                  onClick={() => {
+                    setActivePhotoIndex(i);
+                    setActivePhoto(src);
+                  }}
                   className="rounded-lg shadow-md object-cover w-full h-48 max-w-[33%] cursor-pointer hover:opacity-90 transition"
                 />
               ))}
             </div>
             <button
-              onClick={() => setSlideIndex((prev) => Math.min(prev + 1, Math.floor((4 - 3))))}
+              onClick={() => setSlideIndex((prev) => Math.min(prev + 1, Math.floor((photos.length - 3))))}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
             >
               ▶
