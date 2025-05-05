@@ -6,6 +6,7 @@ import React from 'react';
 import { NowPlaying } from "@/components/ui/spotify/NowPlaying";
 import { ProjectType } from "@/types/Project";
 import { Project } from "@/components/ui/projects/Project";
+import WorkExperience from "@/components/ui/experience/WorkExperience";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -27,7 +28,6 @@ export default function PersonalWebsite() {
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [activeProject, setActiveProject] = useState<ProjectType | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
-
 
   const projects: ProjectType[] = [
     {
@@ -57,6 +57,7 @@ export default function PersonalWebsite() {
               alt="Kelly and Freya in Wales"
               width={300}
               height={200}
+              className='rounded-lg shadow-md'
             />
         </div>
         <motion.div
@@ -73,11 +74,20 @@ export default function PersonalWebsite() {
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-3xl font-semibold text-pink-700 mb-4">About Me</h2>
-          <p className="leading-relaxed text-lg">
-            I’m a software engineer passionate about creating intuitive, user-focused experiences. When I’m not
-            coding, you’ll find me running the streets of London, crocheting colorful creations, or spending time with my dogs.
-          </p>
+          <div className="leading-relaxed text-lg">
+            <p className="my-8">👋 Hey there! I’m Kelly King — a front end (occasionally full stack) engineer with 13 years of experience. I’ve helped scale platforms like Tumblr and Twitter, shipping features that reach millions while mentoring engineers and championing inclusive, user-focused experiences.</p>
+            <p className="my-8">I love turning ambitious ideas into polished, high-impact products — whether it&apos;s building a better notification system, launching paid features, or reimagining community tools from the ground up. I’ve worn many hats: IC, tech lead, hack week ringleader, and conference organizer. Whatever the role, I’m here for the collaboration, curiosity, and a little chaos.</p>
+            <p className="my-8">When I’m not coding, you’ll find me running the streets of London, crocheting something colorful, or spending time with my dogs.</p>
+          </div>
         </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <WorkExperience />
+      </motion.section>
 
         <motion.section
           initial={{ opacity: 0, y: 20 }}
