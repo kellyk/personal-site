@@ -25,8 +25,10 @@ const projects: ProjectType[] = [
 
 // Extract photos array to a constant for better management
 const photos = [
-  "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1503762546558-801f7a8feb6c?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGJvc3RvbiUyMHRlcnJpZXJ8ZW58MHx8MHx8fDI%3D",
+  "/freya-at-daycare.jpg",
+  "/running.jpg",
+  "/freya-on-pillow.jpg",
+  "/nintendo-world.jpg",
   "https://images.unsplash.com/photo-1550376026-7375b92bb318?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8WUFSTnxlbnwwfHwwfHx8Mg%3D%3D",
   "https://images.unsplash.com/photo-1557868363-e58c250144cf?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
 ];
@@ -49,11 +51,32 @@ const Input = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
 
 export default function PersonalWebsite() {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
   const [activeProject, setActiveProject] = useState<ProjectType | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number>(0);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number>(0);
+
+  // Shared function to navigate photos in both lightbox and carousel
+  const navigatePhotos = (direction: 'left' | 'right') => {
+    // Only update lightbox if it's open
+    if (activePhoto) {
+      const newIndex = direction === 'right'
+        ? (activePhotoIndex + 1) % photos.length
+        : (activePhotoIndex - 1 + photos.length) % photos.length;
+
+      setActivePhotoIndex(newIndex);
+      setActivePhoto(photos[newIndex]);
+    }
+
+    // Always update the carousel
+    if (direction === 'right') {
+      setSlideIndex((prev) => Math.min(prev + 1, Math.floor(photos.length - 3)));
+    } else {
+      setSlideIndex((prev) => Math.max(prev - 1, 0));
+    }
+  };
 
   // Handle escape key press to close lightboxes
   useEffect(() => {
@@ -99,13 +122,9 @@ export default function PersonalWebsite() {
       if (!activePhoto) return;
 
       if (e.key === 'ArrowRight') {
-        const nextIndex = (activePhotoIndex + 1) % photos.length;
-        setActivePhotoIndex(nextIndex);
-        setActivePhoto(photos[nextIndex]);
+        navigatePhotos('right');
       } else if (e.key === 'ArrowLeft') {
-        const prevIndex = (activePhotoIndex - 1 + photos.length) % photos.length;
-        setActivePhotoIndex(prevIndex);
-        setActivePhoto(photos[prevIndex]);
+        navigatePhotos('left');
       }
     };
 
@@ -244,11 +263,12 @@ export default function PersonalWebsite() {
           </p>
           <div className="relative overflow-hidden">
             <button
+              onClick={() => navigatePhotos('left')}
               className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
             >
               ◀
             </button>
-            <div className="flex gap-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+            <div className="flex gap-4 transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${slideIndex * 25}%)` }}>
               {photos.map((src, i) => (
                  <Image
                   key={i}
@@ -265,7 +285,7 @@ export default function PersonalWebsite() {
               ))}
             </div>
             <button
-              onClick={() => setSlideIndex((prev) => Math.min(prev + 1, Math.floor((photos.length - 3))))}
+              onClick={() => navigatePhotos('right')}
               className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white shadow px-2 py-1 z-10"
             >
               ▶
@@ -315,6 +335,12 @@ export default function PersonalWebsite() {
               placeholder="Your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+            />
+            <textarea
+              className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-300"
+              placeholder="Your message"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
             />
             <Button type="submit">Get in touch</Button>
           </form>
