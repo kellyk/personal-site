@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SpotifyTrack, SpotifyState } from '../types/spotify';
+import { SpotifyCurrentlyPlayingResponse, SpotifyState } from '../types/spotify';
 
 // Default poll interval in milliseconds (30 seconds)
 const DEFAULT_POLL_INTERVAL = 30000;
@@ -23,7 +23,7 @@ export function useSpotify(pollInterval = DEFAULT_POLL_INTERVAL) {
         throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
       }
 
-      const data: SpotifyTrack = await response.json();
+      const data: SpotifyCurrentlyPlayingResponse = await response.json();
       setState({ data, isLoading: false, error: null });
     } catch (error) {
       console.error('Error fetching Spotify data:', error);

@@ -78,7 +78,7 @@ export type SpotifyItem = SpotifyTrackObject | SpotifyEpisodeObject;
 
 // Currently playing response structure from the Spotify API
 export interface SpotifyCurrentlyPlayingResponse {
-  is_playing: boolean;
+  isPlaying: boolean;
   item: SpotifyItem | null;
   progress_ms: number | null;
   timestamp: number;
@@ -93,22 +93,22 @@ export type SpotifyItemOrUnknown = SpotifyItem | Record<string, unknown>;
 
 // Type guard to check if the item is a track
 export function isSpotifyTrack(item: SpotifyItemOrUnknown): item is SpotifyTrackObject {
-  return Boolean(item && 
-    typeof item === 'object' && 
-    item !== null && 
-    'type' in item && 
-    item.type === 'track' && 
-    'artists' in item && 
+  return Boolean(item &&
+    typeof item === 'object' &&
+    item !== null &&
+    'type' in item &&
+    item.type === 'track' &&
+    'artists' in item &&
     'album' in item);
 }
 
 // Type guard to check if the item is an episode
 export function isSpotifyEpisode(item: SpotifyItemOrUnknown): item is SpotifyEpisodeObject {
-  return Boolean(item && 
-    typeof item === 'object' && 
-    item !== null && 
-    'type' in item && 
-    item.type === 'episode' && 
+  return Boolean(item &&
+    typeof item === 'object' &&
+    item !== null &&
+    'type' in item &&
+    item.type === 'episode' &&
     'show' in item);
 }
 
