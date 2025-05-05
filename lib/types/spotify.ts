@@ -120,7 +120,7 @@ export function isSpotifyEpisode(item: SpotifyItemOrUnknown): item is SpotifyEpi
 export interface NowPlayingResponse {
   isPlaying: boolean;
   title?: string;
-  artist?: string;
+  artists?: [{name: string}];
   album?: string;
   albumImageUrl?: string;
   songUrl?: string;

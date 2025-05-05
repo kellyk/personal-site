@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import SpotifyWebApi from 'spotify-web-api-node';
+import '../../../../envConfig';
 
 export async function GET(request: NextRequest) {
   // Get the authorization code from the URL
@@ -41,9 +42,10 @@ export async function GET(request: NextRequest) {
   try {
     // Exchange the authorization code for access and refresh tokens
     const data = await spotifyApi.authorizationCodeGrant(code);
-    
-    // Get the tokens - we only need refresh token and expiration time for display
-    const { refresh_token: refreshToken, expires_in: expiresIn } = data.body;
+
+    // Get the tokens
+    const refreshToken = data.body.refresh_token;
+    const expiresIn = data.body.expires_in;
 
     // Return a page displaying the refresh token
     return new NextResponse(
@@ -63,12 +65,12 @@ export async function GET(request: NextRequest) {
           <div class="success">
             <p>Your Spotify account has been connected successfully.</p>
           </div>
-          
+
           <h2>Your Refresh Token</h2>
           <div class="token-box" onclick="this.select();">
             ${refreshToken}
           </div>
-          
+
           <div class="instructions">
             <h3>Next Steps:</h3>
             <ol>
@@ -78,16 +80,16 @@ export async function GET(request: NextRequest) {
               <li>Restart your development server with <code>npm run dev</code>.</li>
             </ol>
           </div>
-          
+
           <p>Access token expires in ${expiresIn} seconds, but the refresh token will allow your app to get new access tokens automatically.</p>
         </body>
       </html>`,
       { status: 200, headers: { 'Content-Type': 'text/html' } }
     );
-    
+
   } catch (error) {
     console.error('Error exchanging code for tokens:', error);
-    
+
     return new NextResponse(
       `<html>
         <head>

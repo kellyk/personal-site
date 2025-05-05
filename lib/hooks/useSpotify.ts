@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { NowPlayingResponse, SpotifyState } from '../types/spotify';
+import { SpotifyTrack, SpotifyState } from '../types/spotify';
 
 // Default poll interval in milliseconds (30 seconds)
 const DEFAULT_POLL_INTERVAL = 30000;
@@ -17,26 +17,20 @@ export function useSpotify(pollInterval = DEFAULT_POLL_INTERVAL) {
   const fetchNowPlaying = async () => {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
-      
-      // Make the API request to fetch currently playing track
       const response = await fetch('/api/spotify/now-playing');
-      
-      // Check if the response is OK
+
       if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
       }
-      
-      // Parse the JSON response
-      const data: NowPlayingResponse = await response.json();
-      
-      // Update state with the fetched data
+
+      const data: SpotifyTrack = await response.json();
       setState({ data, isLoading: false, error: null });
     } catch (error) {
       console.error('Error fetching Spotify data:', error);
-      setState({ 
-        data: null, 
-        isLoading: false, 
-        error: error instanceof Error ? error.message : 'An unknown error occurred' 
+      setState({
+        data: null,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'An unknown error occurred'
       });
     }
   };

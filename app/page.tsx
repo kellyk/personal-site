@@ -30,6 +30,7 @@ const Input = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
 const NowPlaying = () => {
   const { data, isLoading, error } = useSpotify();
 
+  console.log({data})
   if (isLoading) {
     return <div className="animate-pulse">🎧 Loading music...</div>;
   }
@@ -52,7 +53,7 @@ const NowPlaying = () => {
         rel="noopener noreferrer"
         className="font-medium text-pink-600 hover:underline flex items-center"
       >
-        {data.title} – {data.artist}
+        {data.title} | { data.artists ? data.artists.map(artist => artist.name).join(', ') : null}
       </a>
     </div>
   );
