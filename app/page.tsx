@@ -4,14 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from 'next/image'
 import React from 'react';
 import { NowPlaying } from "@/components/ui/spotify/NowPlaying";
+import { ProjectType } from "@/types/Project";
+import { Project } from "@/components/ui/projects/Project";
 
-// Define Project interface
-interface Project {
-  img: string;
-  title: string;
-  desc: string;
-  details: string;
-}
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
@@ -30,11 +25,11 @@ const Input = ({ ...props }: React.InputHTMLAttributes<HTMLInputElement>) => (
 export default function PersonalWebsite() {
   const [email, setEmail] = useState("");
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
-  const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [activeProject, setActiveProject] = useState<ProjectType | null>(null);
   const [slideIndex, setSlideIndex] = useState(0);
 
 
-  const projects: Project[] = [
+  const projects: ProjectType[] = [
     {
       img: "https://images.unsplash.com/photo-1569230919100-d3fd5e1132f4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFiaXRzfGVufDB8fDB8fHwy",
       title: "Wellness Tracker",
@@ -55,7 +50,7 @@ export default function PersonalWebsite() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between px-6">
           <div className="text-center md:text-left mb-8 md:mb-0">
             <h1 className="text-5xl font-black font-sans text-pink-600 tracking-wide">Kelly King</h1>
-            <p className="text-lg mt-3 text-gray-700">Fullstack Engineer | Nature Lover | Dog Enthusiast</p>
+            <p className="text-lg mt-3 text-gray-700">Front End / Full Stack Engineer | Previously at Twitter and Tumblr</p>
           </div>
             <Image
               src="/bae.jpg"
@@ -79,8 +74,8 @@ export default function PersonalWebsite() {
         >
           <h2 className="text-3xl font-semibold text-pink-700 mb-4">About Me</h2>
           <p className="leading-relaxed text-lg">
-            I’m a fullstack engineer passionate about creating intuitive, user-focused experiences. When I’m not
-            coding, you’ll find me running trails, crocheting colorful creations, or spending time with my dogs.
+            I’m a software engineer passionate about creating intuitive, user-focused experiences. When I’m not
+            coding, you’ll find me running the streets of London, crocheting colorful creations, or spending time with my dogs.
           </p>
         </motion.section>
 
@@ -92,24 +87,11 @@ export default function PersonalWebsite() {
           <h2 className="text-3xl font-semibold text-pink-700 mb-6">Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {projects.map((project, i) => (
-              <motion.div
+              <Project
                 key={i}
-                whileHover={{ scale: 1.03 }}
+                project={project}
                 onClick={() => setActiveProject(project)}
-                className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer"
-              >
-                <Image
-                  src={project.img}
-                  alt={project.title}
-                  width={400}
-                  height={300}
-                  className="h-40 w-full object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-xl font-bold text-indigo-700">{project.title}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{project.desc}</p>
-                </div>
-              </motion.div>
+              />
             ))}
           </div>
 
@@ -170,10 +152,9 @@ export default function PersonalWebsite() {
         >
           <h2 className="text-3xl font-semibold text-pink-700 mb-4">More About Me</h2>
           <p className="mb-6 text-lg">
-            Outside of tech, I’m always in motion or making something with my hands. You can follow along on
-            Outside of tech, I&apos;m always in motion or making something with my hands. You can follow along on
-            <a href="https://instagram.com/freya.the.boston" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline"> Freya the Boston</a>,
-            <a href="https://instagram.com/kelly.makes.things" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline"> Kelly Makes Things</a>,
+            Outside of tech, I&apos;m always in motion or making something with my hands. You can follow along on{' '}
+            <a href="https://instagram.com/freya.the.boston" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline">Freya the Boston</a>,{' '}
+            <a href="https://instagram.com/kelly.makes.things" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline">Kelly Makes Things</a>,{' '}
             or <a href="https://www.strava.com/athletes/13003172" target="_blank" rel="noopener noreferrer" className="text-indigo-700 underline">my Strava profile</a>.
           </p>
           <div className="relative overflow-hidden">
