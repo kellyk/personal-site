@@ -104,7 +104,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           All posts
         </Link>
 
-        <article className="mt-8">
+        <article className="mt-8  bg-white rounded-xl shadow-md p-6 ">
           <header className="mb-8">
             <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
 
