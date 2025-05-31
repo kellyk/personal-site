@@ -10,22 +10,33 @@ import { Header } from '@/components/blog/Header';
 
 const components = {
   h1: () => <hr style={{ marginBottom: '2em'}} />,
-  code: ({ children } : {children: string }) => {
-    console.log('type', typeof children);
-    const codeHTML = typeof children === 'string' ? highlight(children) : children;
-    return <code dangerouslySetInnerHTML={{ __html: codeHTML as string }} />;
+  code: ({ children } : { children: string | React.ReactNode }) => {
+    try {
+      // Only apply highlighting if children is a string
+      if (typeof children === 'string') {
+        const codeHTML = highlight(children);
+        return <code dangerouslySetInnerHTML={{ __html: codeHTML }} />;
+      }
+      // If not a string, just render as-is
+      return <code>{children}</code>;
+    } catch (error) {
+      console.error('Error highlighting code:', error);
+      // Fallback to plain rendering if highlighting fails
+      return <code>{children}</code>;
+    }
   }
 };
-interface BlogPostPageProps {
-  params: {
-    slug: string;
-  };
+interface Params {
+  slug: string;
 }
 
-export async function generateMetadata(
-  { params }: { params: Promise<BlogPostPageProps['params']> | BlogPostPageProps['params'] }
-): Promise<Metadata> {
-  // Ensure params is awaited if it's a Promise
+interface Props {
+  params: Params;
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // Await the params before using
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
 
@@ -67,7 +78,7 @@ export async function generateMetadata(
   }
 }
 
-export async function generateStaticParams() {
+export async function generateStaticParams(): Promise<Params[]> {
   try {
     const slugs = getAllBlogPostSlugs();
     return slugs.map(slug => ({
@@ -79,10 +90,8 @@ export async function generateStaticParams() {
   }
 }
 
-export default async function BlogPostPage(
-  { params }: { params: Promise<BlogPostPageProps['params']> | BlogPostPageProps['params'] }
-) {
-  // Ensure params is awaited if it's a Promise
+export default async function BlogPostPage({ params }: Props) {
+  // Await the params before using
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
 
