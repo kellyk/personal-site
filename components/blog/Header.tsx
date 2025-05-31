@@ -10,7 +10,7 @@ export const Header = () => (
 
         <h1 className="text-5xl font-black font-sans text-pink-600 tracking-wide">
           <Link href="/"><InitialsIcon /></Link>
-          <span className='text-indigo-800'>My Blog</span>
+          <span className='text-indigo-800'>Kelly&#39;s Blog</span>
         </h1>
         <p className="text-lg mt-3 text-gray-700">Snippets, cheatsheets, & musings on web development</p>
       </div>

@@ -1,27 +1,40 @@
 import { Metadata } from 'next';
-import { getAllBlogPosts, getAllTags } from '@/lib/blog';
+import { getPostsByTag, getAllTags } from '@/lib/blog';
 import DateDisplay from '@/components/blog/DateDisplay';
 import TagList from '@/components/blog/TagList';
 import { Header } from '@/components/blog/Header';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+
+interface BlogPostPageProps {
+  params: Promise<{ tag: string }>; // Corrected type
+}
 
 export const metadata: Metadata = {
-  title: 'Blog | Kelly King',
+  title: 'Tagged posts | Kelly King',
   description: 'Thoughts on software development, web technologies, and engineering culture.',
   openGraph: {
-    title: 'Blog | Kelly King',
+    title: 'Tagged posts | Kelly King',
     description: 'Thoughts on software development, web technologies, and engineering culture.',
     type: 'website',
   },
 };
 
-export default async function BlogPage() {
+export default async function BlogTagPage({ params }: BlogPostPageProps) {
+  // Await the params before using
+  const resolvedParams = await Promise.resolve(params);
+  const { tag } = resolvedParams;
+
   try {
-    // Get all blog posts and tags in parallel
+
     const [posts, tags] = await Promise.all([
-      getAllBlogPosts(),
+      getPostsByTag(tag),
       getAllTags()
     ]);
+
+    if (!posts) {
+      notFound();
+    }
 
     return (
       <div className="min-h-screen pb-10 bg-gradient-to-br from-pink-50 via-white to-indigo-50 text-gray-800 font-sans">
