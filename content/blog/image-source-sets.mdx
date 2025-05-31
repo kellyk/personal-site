@@ -1,18 +1,18 @@
 ---
-title: "Using Image Source Sets for Responsive Images"
-description: "Learn how to use srcset and sizes attributes to serve responsive images that improve website performance and visual quality across all devices."
+title: "Image Source Sets for Responsive Images"
+description: "A quick intro to img srcset for serving responsive images that improve website performance and visual quality across all devices."
 date: "2025-05-28"
 author: "Kelly King"
 tags: ["web-development", "performance"]
 ---
 
-# Using Image Source Sets for Responsive Images
+# Image Source Sets for Responsive Images
 
-When building websites, one of the key challenges is serving images that look great on all devices — from tiny smartphones to large desktop screens — without slowing down your site. This is where **`srcset`** and **`sizes`** attributes come into play, letting browsers choose the best image for the user's device and connection.
+We want to serve images that look great on all devices — from tiny smartphones to large desktop screens — without slowing down your site. This is where **srcset** and **sizes** attributes come into play, letting browsers choose the best image for the user's device and connection.
 
-#### What is `srcset`?
+## What is srcset?
 
-`srcset` is an attribute on the `<img>` tag that provides multiple image sources along with their sizes. The browser then picks the most appropriate image based on the device's viewport and resolution.
+**srcset** is an attribute on the \<img> tag that provides multiple image sources along with their sizes. The browser then picks the most appropriate image based on the device's viewport and resolution.
 
 Here's a simple example:
 
@@ -28,19 +28,24 @@ Here's a simple example:
   alt="Beautiful scenery">
 ```
 
-- The `srcset` lists three images with their widths (`400w`, `800w`, `1200w`).
-- The `sizes` attribute tells the browser how much space the image will take up at different viewport widths.
+- The **srcset** lists three images with their widths (400w, 800w, 1200w).
+- The **sizes** attribute tells the browser how much space the image will take up at different viewport widths.
 
-#### How does it work?
+## How does it work?
 
-The browser evaluates the `sizes` and `srcset` to determine which image to download. For example:
+The browser evaluates the **sizes** and **srcset** to determine which image to download. For example:
 
-- On a small screen (max-width 600px), the image will likely be small, so the browser picks the `400w` image.
-- On larger screens, it might choose the `1200w` image for better quality.
+- On a small screen (max-width 600px), the image will likely be small, so the browser picks the 400w image.
+- On larger screens, it might choose the 1200w image for better quality.
 
 This dynamic selection saves bandwidth and improves load times, especially on mobile.
 
-#### Why use `srcset`?
+## What happens if you don't provide a sizes attribute?
+
+If you don't provide a sizes attribute in your \<img> tag with **srcset**, the browser will usually assume the image will be displayed at its actual rendered size (or the intrinsic size of the \<img>). It then selects the best image from **srcset** based solely on the pixel density and viewport width, without considering your layout or CSS styling.
+
+
+## Why use srcset?
 
 - **Responsive Design:** Serve appropriately scaled images.
 - **Performance:** Reduce unnecessary data transfer.
@@ -48,8 +53,6 @@ This dynamic selection saves bandwidth and improves load times, especially on mo
 
 ---
 
-### Wrapping Up
+## Wrapping Up
 
-`srcset` is a powerful tool for modern web development. It helps your site be smarter about images, making it faster and look better everywhere. Combine it with `sizes` for even more control, and you'll have a responsive image strategy that keeps users happy and your site lean.
-
----
+**srcset** is a powerful tool for modern web development. It helps your site be smarter about images, making it faster and look better everywhere. Combine it with **sizes** for even more control, and you'll have a responsive image strategy that keeps users happy and your site lean.

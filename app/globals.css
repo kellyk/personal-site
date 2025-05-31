@@ -163,6 +163,7 @@ pre {
   border: 1px solid #bbb7b7;
   border-radius: var(--radius);
   text-wrap: wrap;
+  counter-reset: sh-line-number;
 }
 
 pre code {
