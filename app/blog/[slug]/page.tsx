@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { highlight } from 'sugar-high';
 import Link from 'next/link';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-// import { Metadata } from 'next';
+import { Metadata } from 'next';
 import { getBlogPost, getAllBlogPostSlugs, getRelatedPosts } from '@/lib/blog';
 import DateDisplay from '@/components/blog/DateDisplay';
 import TagList from '@/components/blog/TagList';
@@ -20,56 +20,51 @@ interface Params {
   slug: string;
 }
 
-// interface BlogPostPageProps {
-//   params: Promise<{ slug: string }>; // Corrected type
-// }
-
-interface Props {
-  params: Params;
-  searchParams?: { [key: string]: string | string[] | undefined };
+interface BlogPostPageProps {
+  params: Promise<{ slug: string }>; // Corrected type
 }
 
-// export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-//   // Await the params before using
-//   const { slug } = await params;
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  // Await the params before using
+  const { slug } = await params; // Corrected access
 
-//   try {
-//     const post = await getBlogPost(slug);
+  try {
+    const post = await getBlogPost(slug);
 
-//     if (!post) {
-//       return {
-//         title: 'Post Not Found | Kelly King',
-//         description: 'The requested blog post could not be found.',
-//       };
-//     }
+    if (!post) {
+      return {
+        title: 'Post Not Found | Kelly King',
+        description: 'The requested blog post could not be found.',
+      };
+    }
 
-//     return {
-//       title: `${post.title} | Kelly King`,
-//       description: post.description,
-//       authors: [{ name: post.author }],
-//       openGraph: {
-//         title: post.title,
-//         description: post.description,
-//         type: 'article',
-//         publishedTime: post.date,
-//         authors: [post.author],
-//         tags: post.tags,
-//       },
-//       twitter: {
-//         card: 'summary_large_image',
-//         title: post.title,
-//         description: post.description,
-//         creator: '@kellyking',
-//       },
-//     };
-//   } catch (error) {
-//     console.error(`Error generating metadata for post ${slug}:`, error);
-//     return {
-//       title: 'Error | Kelly King',
-//       description: 'There was an error loading this blog post.',
-//     };
-//   }
-// }
+    return {
+      title: `${post.title} | Kelly King`,
+      description: post.description,
+      authors: [{ name: post.author }],
+      openGraph: {
+        title: post.title,
+        description: post.description,
+        type: 'article',
+        publishedTime: post.date,
+        authors: [post.author],
+        tags: post.tags,
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: post.title,
+        description: post.description,
+        creator: '@kellyking',
+      },
+    };
+  } catch (error) {
+    console.error(`Error generating metadata for post ${slug}:`, error);
+    return {
+      title: 'Error | Kelly King',
+      description: 'There was an error loading this blog post.',
+    };
+  }
+}
 
 export async function generateStaticParams(): Promise<Params[]> {
   try {
@@ -83,7 +78,7 @@ export async function generateStaticParams(): Promise<Params[]> {
   }
 }
 
-export default async function BlogPostPage({ params }: Props) {
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
   // Await the params before using
   const resolvedParams = await Promise.resolve(params);
   const { slug } = resolvedParams;
