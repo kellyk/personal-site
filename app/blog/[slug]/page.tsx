@@ -10,24 +10,19 @@ import { Header } from '@/components/blog/Header';
 
 const components = {
   h1: () => <hr style={{ marginBottom: '2em'}} />,
-  code: ({ children } : { children: string | React.ReactNode }) => {
-    try {
-      // Only apply highlighting if children is a string
-      if (typeof children === 'string') {
-        const codeHTML = highlight(children);
-        return <code dangerouslySetInnerHTML={{ __html: codeHTML }} />;
-      }
-      // If not a string, just render as-is
-      return <code>{children}</code>;
-    } catch (error) {
-      console.error('Error highlighting code:', error);
-      // Fallback to plain rendering if highlighting fails
-      return <code>{children}</code>;
-    }
+  code: ({ children } : {children: string }) => {
+    console.log('type', typeof children);
+    const codeHTML = typeof children === 'string' ? highlight(children) : children;
+    return <code dangerouslySetInnerHTML={{ __html: codeHTML as string }} />;
   }
 };
 interface Params {
   slug: string;
+}
+
+export interface PageProps {
+  params?: Promise<Params>
+  searchParams?: Promise< { [key: string]: string | string[] | undefined }>
 }
 
 interface Props {
@@ -35,10 +30,11 @@ interface Props {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   // Await the params before using
   const resolvedParams = await Promise.resolve(params);
-  const { slug } = resolvedParams;
+  let { slug } = resolvedParams ?? { params: { } };
+  slug = slug || 'hello-world'; // Fallback to a default slug if not provided
 
   try {
     const post = await getBlogPost(slug);
