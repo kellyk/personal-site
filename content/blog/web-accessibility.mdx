@@ -1,0 +1,81 @@
+---
+title: "Building Accessible Websites: A Developer's Guide"
+description: "Learn how to make your web applications accessible to all users, including those with disabilities."
+date: "2025-05-28"
+author: "Kelly King"
+tags: ["accessibility", "web-development", "a11y", "inclusive-design"]
+---
+
+# Building Accessible Websites: A Developer's Guide
+
+Web accessibility (often abbreviated as a11y) is crucial for ensuring that websites and web applications are usable by everyone, including people with disabilities. As developers, we have a responsibility to create inclusive digital experiences.
+
+## Why Accessibility Matters
+
+Making your website accessible isn't just about compliance with legal requirements like the ADA or WCAG standards. It's about:
+
+- **Inclusivity**: Ensuring everyone can use your site, regardless of ability
+- **Improved UX**: Accessibility improvements often benefit all users
+- **SEO Benefits**: Many accessibility practices improve your search engine ranking
+- **Future-proofing**: Building with accessibility in mind makes your site more adaptable
+
+## Key Accessibility Considerations
+
+### Semantic HTML
+
+Using the right HTML elements for their intended purpose is foundational to accessibility:
+
+```html
+<!-- Instead of this -->
+<div class="button" onclick="submit()">Submit</div>
+
+<!-- Use this -->
+<button type="submit">Submit</button>
+```
+
+Proper semantics help assistive technologies understand your content structure.
+
+### Keyboard Navigation
+
+Many users rely solely on keyboard navigation. Ensure that:
+
+- All interactive elements are focusable
+- Focus states are clearly visible
+- Tab order is logical
+- There are no keyboard traps
+
+### Alternative Text for Images
+
+Always provide descriptive alt text for images:
+
+```html
+<img src="chart-q2-results.png" alt="Bar chart showing Q2 sales increased by 25% compared to Q1" />
+```
+
+### ARIA When Necessary
+
+ARIA attributes can enhance accessibility when HTML semantics alone aren't sufficient:
+
+```html
+<div role="alert" aria-live="assertive">
+  Your form has been submitted successfully
+</div>
+```
+
+Remember: "No ARIA is better than bad ARIA." Only use these attributes when you understand their purpose.
+
+## Testing Accessibility
+
+Regular testing is essential. Use a combination of:
+
+1. Automated tools like Lighthouse, axe, or WAVE
+2. Keyboard-only testing
+3. Screen reader testing
+4. Color contrast checkers
+5. User testing with people with disabilities
+
+## Conclusion
+
+Accessibility isn't a checklist feature—it's a mindset that should be integrated into your development process from the beginning. Start with the basics, learn as you go, and remember that small improvements can make a big difference for users with disabilities.
+
+In future posts, I'll dive deeper into specific accessibility techniques for React applications and how to integrate automated testing into your workflow.

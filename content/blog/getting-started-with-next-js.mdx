@@ -1,0 +1,99 @@
+---
+title: 'Getting Started with Next.js: A Beginner''s Guide'
+description: 'Learn how to set up your first Next.js project and understand the core concepts of this powerful React framework.'
+date: '2025-05-29'
+author: 'Kelly King'
+tags: ['next.js', 'react', 'web-development', 'tutorial']
+---
+
+# Getting Started with Next.js: A Beginner's Guide
+
+Next.js has become one of the most popular frameworks for building React applications. In this guide, I'll walk you through setting up your first Next.js project and explain the core concepts that make it so powerful.
+
+## What is Next.js?
+
+Next.js is a React framework that provides a structure and features for your application including:
+
+- Server-side rendering and static site generation
+- File-based routing
+- API routes
+- Built-in CSS and Sass support
+- Code splitting and bundling
+- Development environment with Fast Refresh
+
+## Prerequisites
+
+Before we start, make sure you have:
+
+- Node.js installed (version 14.6.0 or newer)
+- A code editor (I recommend VS Code)
+- Basic knowledge of React
+
+## Creating Your First Next.js Project
+
+Let's create a new Next.js project using the official starter:
+
+```bash
+npx create-next-app@latest my-next-app
+cd my-next-app
+```
+
+The CLI will ask you a few questions about your project setup. For this tutorial, I recommend selecting:
+
+- TypeScript: Yes
+- ESLint: Yes
+- Tailwind CSS: Yes
+- App Router: Yes
+
+Once the installation is complete, you can start the development server:
+
+```bash
+npm run dev
+```
+
+Visit `http://localhost:3000` in your browser, and you should see the Next.js welcome page.
+
+## Understanding the File Structure
+
+Let's take a look at the key files and directories in a Next.js project:
+
+- `app/`: Contains your application pages and routes (with App Router)
+- `public/`: Stores static assets like images and fonts
+- `next.config.js`: Next.js configuration file
+- `package.json`: Project dependencies and scripts
+
+## Creating Your First Page
+
+In Next.js with the App Router, each folder represents a route segment, and the `page.tsx` file within it represents the UI for that route.
+
+Let's create a simple about page. Create a new folder `app/about` and add a `page.tsx` file:
+
+```tsx
+export default function AboutPage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-4">About Me</h1>
+      <p>
+        This is the about page of my Next.js application. I'm learning how to
+        build modern web applications with React and Next.js.
+      </p>
+    </div>
+  );
+}
+```
+
+Now visit `http://localhost:3000/about` to see your new page.
+
+## Conclusion
+
+This is just the beginning of your journey with Next.js. In future posts, I'll cover more advanced topics such as:
+
+- Data fetching strategies
+- Creating dynamic routes
+- Optimizing images and performance
+- Deployment options
+
+Feel free to reach out if you have any questions or suggestions for future tutorials!
+
+Happy coding!
+

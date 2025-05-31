@@ -3,6 +3,33 @@
 
 @custom-variant dark (&:is(.dark *));
 
+h2,h3, h4,h5,h6 {
+  padding: 1em 0 0.5em;
+}
+h1 {
+  @apply text-3xl font-semibold tracking-tight;
+}
+h2 {
+  @apply text-2xl font-semibold tracking-tight;
+}
+h3 {
+  @apply text-xl font-semibold tracking-tight;
+}
+
+ol {
+  @apply list-decimal pl-6;
+  margin: 0.5em 0;
+}
+
+ul {
+  @apply list-disc pl-6;
+  margin: 0.5em 0;
+}
+
+article.mb-10:last-child {
+  margin-bottom: 0;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -76,6 +103,15 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --sh-class: #2d5e9d;
+  --sh-identifier: #354150;
+  --sh-sign: #8996a3;
+  --sh-property: #0550ae;
+  --sh-entity: #249a97;
+  --sh-jsxliterals: #6266d1;
+  --sh-string: #00a99a;
+  --sh-keyword: #f47067;
+  --sh-comment: #a19595;
 }
 
 .dark {
@@ -119,4 +155,30 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+pre {
+  margin: 0.5em 0;
+  padding: 1em;
+  border: 1px solid #bbb7b7;
+  border-radius: var(--radius);
+  text-wrap: wrap;
+}
+
+pre code {
+  counter-reset: sh-line-number;
+}
+
+.sh__line::before {
+  counter-increment: sh-line-number 1;
+  content: counter(sh-line-number);
+  margin-right: 24px;
+  text-align: right;
+  color: #a4a4a4;
+}
+.sh__line:nth-child(5) {
+  background: #f5f5f5;
+}
+.sh__token--keyword {
+  background: #f8ff32;
 }
