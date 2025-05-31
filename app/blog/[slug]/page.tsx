@@ -20,9 +20,8 @@ interface Params {
   slug: string;
 }
 
-export interface PageProps {
-  params?: Promise<Params>
-  searchParams?: Promise< { [key: string]: string | string[] | undefined }>
+interface BlogPostPageProps {
+  params: Promise<{ slug: string }>; // Corrected type
 }
 
 interface Props {
@@ -30,11 +29,9 @@ interface Props {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   // Await the params before using
-  const resolvedParams = await Promise.resolve(params);
-  let { slug } = resolvedParams ?? { params: { } };
-  slug = slug || 'hello-world'; // Fallback to a default slug if not provided
+  const { slug } = await params;
 
   try {
     const post = await getBlogPost(slug);
