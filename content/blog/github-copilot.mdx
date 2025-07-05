@@ -1,0 +1,52 @@
+---
+title: "GitHub Copilot Notes"
+description: "Notes from LinkedIn Learning Copilot certificate course."
+date: "2025-06-28"
+author: "Kelly King"
+tags: ["web-development", "AI", "tips"]
+---
+
+## Shortcuts
+
+Cycle through suggestions
+
+- Next: `Option` + `]`
+- Previous: `Option` + `[`
+
+*Note that this seemed to work better / more consistently for me after I hovered over the "ghost text" suggestion to get the context menu, and then selected "Always Show Toolbar."*
+
+Accept next word from suggestion
+- `Command` + `→`
+
+*For this one to work, I had to open Keyboard Settings (via Command Palette) and clear and then retype the keys.*
+
+## Improving suggestions
+
+- Pull list/enum into a variable or enumerate the options in a comment to improve places those vals are referenced later
+- Create a comment block and add a note for Copilot, eg `Create tr with tds for name and age. Use template strings.`
+- Comments could include pasting relevant variables/fields to hint to Copilot, eg `\\ These are model fields: name=models.Char, amount=models.decimal...`, then continue your code.
+
+## Context
+
+By default, Copilot only uses open files for context. You can make it use the entire codebase by prefacing your question with `@workspace`.
+
+## Chat and Agent Modes
+
+### Chat
+- Type a `/` for available commands
+- Reference particular files with `#file:filename`
+- Good questions to ask:
+  - How can I refactor this?
+  - How can I improve readability?
+  - Create unit testing headers for this file
+  - Ask for executable code like "How do I start a python server in my terminal", etc
+
+
+### Agent Mode
+
+With Agent mode, it will make changes and create files for you rather than responding as a chat conversation. It will still offer the diff for you to accept or modify or reject.
+
+Opening
+- Open agent mode using the command palette: `>Chat: Open Chat (Agent)`
+- `Commad` + `Shift` + `i` also seems to open agent mode.
+

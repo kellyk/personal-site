@@ -1,0 +1,739 @@
+---
+title: "SQL Notes"
+description: "Notes from SQL Essential Training."
+date: "2025-06-24"
+author: "Kelly King"
+tags: ["web-development", "Introduction", "SQL"]
+---
+
+## Composing Queries
+
+### Comments
+
+```sql
+-- Single line comment starts with a dash
+
+/*
+  Multiline comment, often with:
+
+  CREATED BY: Kelly King
+  CREATE DATE: 06/24/2025
+  DESCRIPTION: What a comment looks like
+*/
+```
+
+### Composition
+
+```sql
+SELECT FirstName, LastName, Email
+FROM Customer
+```
+
+### Custom names (aliases)
+
+Square brackets, quotes, or directly use the new word if there are no spaces!
+
+```sql
+SELECT
+	FirstName AS [Customer first name],
+	LastName AS "Customer last name",
+	Email	AS EMAIL
+FROM Customer
+```
+
+Alias the table itself:
+
+```sql
+SELECT
+	t.Composer,
+	t.Name AS "Track Name"
+FROM Track as t
+ORDER BY t.Name
+LIMIT 10
+```
+
+### Sorting results
+
+Ascending is default!
+```sql
+SELECT
+	FirstName AS [Customer first name],
+	LastName AS "Customer last name",
+	Email	AS EMAIL
+FROM Customer
+ORDER BY
+	FirstName ASC,
+	LastName DESC
+```
+
+### Limiting results
+
+```sql
+SELECT
+	FirstName AS [Customer first name],
+	LastName AS "Customer last name",
+	Email	AS EMAIL
+FROM Customer
+ORDER BY
+	FirstName ASC,
+	LastName DESC
+LIMIT 10
+```
+
+## Filtering
+
+| Arithmetic | Symbol | Comparison            | Symbol | Logical |
+|------------|--------|----------------------|--------|---------|
+| Add        | +      | Equal to             | \=     | AND     |
+| Subtract   | -      | Not equal to         | \<\>   | OR      |
+| Multiply   | *      | Greater than         | \>     | IN      |
+| Divide     | /      | Less than            | \<     | LIKE    |
+| Modulo     | %      | Less than or equal to| \<\=   |         |
+
+
+### Numeric data
+
+```sql
+-- Description: Number of customers purchased two songs at 99cents each
+
+SELECT *
+FROM Invoice
+WHERE Total = 1.98
+```
+
+### BETWEEN and IN
+
+```sql
+-- Description: Number of invoices that are between 1.98 and 5
+
+SELECT *
+FROM Invoice
+WHERE Total BETWEEN 1.98 AND 5.00
+```
+
+```sql
+-- Description: Number of invoices that are exactly 1.98 or 3.96
+
+SELECT *
+FROM Invoice
+WHERE Total IN (1.98, 3.96)
+```
+
+### Text data
+
+```sql
+-- Description: Number of invoices billed to Brussels
+
+SELECT *
+FROM Invoice
+WHERE BillingCity= 'Brussels'
+```
+
+```sql
+-- Description: Number of invoices billed to Brussels, Orlando, or Paris
+
+SELECT *
+FROM Invoice
+WHERE BillingCity in ('Brussels', 'Orlando', 'Paris')
+```
+
+### Non-exact match
+
+LIKE operator searches for partial or incorrect values, used with `%` which is a wild card character
+
+```sql
+-- Description: Number of invoices billed to cities that start with a B
+
+SELECT *
+FROM Invoice
+WHERE BillingCity LIKE 'B%'
+```
+
+```sql
+-- Description: Number of invoices billed to cities that contain a B
+
+SELECT *
+FROM Invoice
+WHERE BillingCity LIKE '%B%'
+```
+
+### Dates
+
+Options
+* Match the format in the table
+* Apply a Date function to the column
+
+```sql
+-- Description: How many invoices billed on May 22, 2010
+
+SELECT *
+FROM Invoice
+WHERE InvoiceDate = '2010-05-22 00:00:00'
+```
+
+```sql
+SELECT *
+FROM Invoice
+WHERE DATE(InvoiceDate) = '2010-05-22'
+```
+
+### Multiple conditions
+
+```sql
+-- Description: Get all inovices that were billed after 5/22/2010 and total less than $3
+
+SELECT *
+FROM Invoice
+WHERE DATE(InvoiceDate) > '2010-05-22' AND total < 3.00
+ORDER BY InvoiceDate
+```
+
+### Logical OR
+
+```sql
+-- Description: Get all invoices whose billing city starts with a P or a D
+
+SELECT *
+FROM Invoice
+WHERE BillingCity LIKE 'P%' OR BillingCity LIKE 'D%'
+```
+
+
+### Brackets and order
+
+The order matters, so we apply PEMDAS
+- Parens around the part we want executed first
+
+```sql
+-- Description: All invoices greater than 1.99 from any cities starting with P or D
+
+SELECT *
+FROM Invoice
+WHERE total > 1.98 AND (BillingCity LIKE 'P%' OR BillingCity LIKE 'D%' )
+```
+
+### IF THEN case
+
+```sql
+/*
+Description: Customers spending between $7 and 15
+Sales categories
+- Basline: Between .99 and 1.99
+- Low purchase: Between 2 and 6.99
+- Target: Between 7 and 15
+- Top: Above 15
+*/
+
+SELECT
+	InvoiceDate,
+	BillingAddress,
+	BillingCity,
+	total,
+	CASE
+	WHEN total < 2 THEN 'Baseline purchase'
+	WHEN total BETWEEN 2.00 AND 6.99 THEN 'Low purchase'
+	WHEN total BETWEEN 7.00 AND 15.00 THEN 'Target purchase'
+	ELSE 'Top performer'
+	END as PurchaseType
+FROM Invoice
+ORDER BY BillingCity
+```
+
+```sql
+-- Description: Which cities do top sales come from
+
+SELECT
+	InvoiceDate,
+	BillingAddress,
+	BillingCity,
+	total,
+	CASE
+	WHEN total < 2 THEN 'Baseline purchase'
+	WHEN total BETWEEN 2.00 AND 6.99 THEN 'Low purchase'
+	WHEN total BETWEEN 7.00 AND 15.00 THEN 'Target purchase'
+	ELSE 'Top performer'
+	END as PurchaseType
+FROM Invoice
+WHERE PurchaseType =  'Top performer'
+ORDER BY BillingCity
+```
+
+```sql
+-- Description: Categorize each track based on its price
+
+SELECT
+	Name as "Track name",
+	Composer,
+	UnitPrice as Price,
+	CASE
+		WHEN UnitPrice <= 0.99 THEN "Budget"
+		WHEN UnitPrice > 0.99 AND UnitPrice < 1.49 THEN "Regular"
+		WHEN UnitPrice > 1.49 THEN "Premium"
+		ELSE "Exclusive"
+	END as PriceCategory
+FROM Track
+ORDER BY UnitPrice DESC
+```
+
+## Multiple tables
+
+### Joins
+
+```sql
+-- Description: Join customer and invoice table
+
+SELECT  *
+ FROM Invoice
+ INNER JOIN
+	Customer
+ON Invoice.CustomerId = Customer.CustomerId
+ORDER BY Invoice.CustomerId
+```
+
+```sql
+-- Description: Join customer and invoice table
+
+SELECT  *
+ FROM Invoice as i
+ INNER JOIN
+	Customer
+ON Invoice.CustomerId = Customer.CustomerId
+ORDER BY Invoice.CustomerId
+```
+
+### Types of joins
+Discrepencies between tables are handled by different join types.
+
+For example, imagine a customer deletes their account. Their ID migh still appear on invoices, despite being removed from our customer database.
+
+* **Inner join**: The center / overlapping parts of a venn diagram.
+* **Left outer join**: The left side of a venn diagram, including any overlap from the right. We get all fields from left table, and any matching info from the right table.
+* **Right outer join**: Returns the entire right table, plus any relevant data from the left. Note that SQL lite doesn't support this operation. The best practice is to reverse the order of the tables, and do a left outer join  instead.
+
+### Joining many tables
+
+```sql
+-- Description: Get the customer and sales rep names for the highest ten individual sales
+
+ SELECT
+	e.FirstName,
+	e.LastName,
+	e.EmployeeId,
+	c.FirstName,
+	c.LastName,
+	c.SupportRepId,
+	i.CustomerId,
+	i.total
+FROM
+	Invoice as i
+INNER JOIN
+	Customer as c
+ON
+	i.CustomerId = c.CustomerId
+INNER JOIN
+	Employee as e
+ON c.SupportRepId = e.EmployeeId
+ORDER BY
+	i.total DESC
+LIMIT 10
+```
+
+```sql
+-- Description: Generate a report that lists each customer along with their assigned support representative
+
+ SELECT
+	c.FirstName as "Customer name",
+	c.LastName as "Customer surname",
+	e.FirstName as "Employee name",
+	e.LastName as "Employee surname"
+ FROM Customer as c
+	INNER JOIN Employee as e
+	ON c.SupportRepId = e.EmployeeId
+ORDER BY e.LastName, c.LastName
+```
+
+## SQL functions
+
+| **Aggregate** | | **String** | | **Date** |
+| -------- | -------- | -------- |-------- |-------- |
+| Min() | | Upper() | | Now |
+| Max() | | Substr() | | Datetime() |
+| Aug() | | Instr() | | Date() |
+| Count() | | Ltrim() | | Date() |
+| Sum() | | Replace() | | Strftime() |
+| | | Trim() | | Time() |
+
+### Connecting strings
+We can use the `||` double pipe operator to concatenate strings, including string literals.
+
+```sql
+-- Description: Return a mailing address field that combines the customer name and address for American customers
+
+SELECT
+	FirstName || " " || LastName || " " || Address  || ", " || City  || "  " ||  State  || ",  " ||  PostalCode as [Mailing address]
+FROM Customer
+WHERE
+	Country = "USA"
+```
+
+### Separating text
+
+```sql
+-- Description: same as above, but only get 5 digit postal code
+
+SELECT
+	FirstName || " " || LastName || " " || Address  || ", " || City  || "  " ||  State  || ",  " ||  Substr(PostalCode,  1, 5) as [Mailing address]
+FROM Customer
+WHERE
+	Country = "USA"
+```
+
+### UPPER and LOWER
+
+```sql
+-- Description: Get customer name, uppercasing surname and lowercasing first name
+
+ SELECT
+	UPPER(LastName),
+	LOWER(FirstName)
+FROM Customer
+```
+
+### Date functions
+
+```sql
+-- Description: Get ages and birthdays of employees
+
+ SELECT
+	LastName,
+	FirstName,
+	strftime("%Y-%m-%d", BirthDate),
+	strftime("%Y-%m-%d", 'now') - strftime("%Y-%m-%d", BirthDate) as Age
+FROM Employee
+```
+
+### Aggregate functions
+
+```sql
+-- Description: Get total, min, max and average sales
+
+ SELECT
+	SUM(total) as [Total sales],
+	RND(AVG(total)) as [Average sale],
+	MAX(total) as [Max sale],
+	MIN(total) as [Min sale],
+	Count(*) as [Num sales]
+FROM Invoice
+```
+
+### Nesting functions
+
+```sql
+-- Description: as above, but round the average
+
+ SELECT
+	SUM(total) as [Total sales],
+	ROUND(AVG(total), 2) as [Average sale],
+	MAX(total) as [Max sale],
+	MIN(total) as [Min sale],
+	Count(*) as [Num sales]
+FROM Invoice
+```
+
+## Grouping
+
+### Basic Grouping
+
+Apply the Group By to the non-aggregated field.
+
+```sql
+-- Description: Average amount customers spend by billing city
+
+SELECT
+	BillingCity,
+	ROUND(avg(total))
+FROM Invoice
+GROUP BY BillingCity
+ORDER BY BillingCity
+```
+
+### Grouping with the WHERE clause
+
+WHERE always comes after FROM and before GROUP BY
+
+```sql
+-- Description: Average amount customers spend by billing city in cities that start with an "L"
+
+SELECT
+	BillingCity,
+	ROUND(avg(total))
+FROM Invoice
+WHERE BillingCity LIKE 'L%'
+GROUP BY BillingCity
+ORDER BY BillingCity
+```
+
+### Grouping with the HAVING clause
+
+HAVING always comes after the GROUP BY. Having acts as a further filter.
+
+```sql
+-- Description: same as above, but only for averages over $5
+
+SELECT
+	BillingCity,
+	ROUND(avg(total))
+FROM Invoice
+GROUP BY BillingCity
+HAVING avg(total) > 5.00
+ORDER BY BillingCity
+```
+
+### Grouping WHERE and HAVING
+
+WHERE comes before HAVING!
+
+```sql
+-- Description: as above, but for cities starting with a "B"
+
+SELECT
+	BillingCity,
+	ROUND(avg(total))
+FROM Invoice
+WHERE BillingCity LIKE 'B%'
+GROUP BY BillingCity
+HAVING avg(total) > 5.00
+ORDER BY BillingCity
+```
+
+### Grouping by many fields
+
+```sql
+-- Description: Average invoice totals by billing country and city
+
+SELECT
+	BillingCountry,
+	BillingCity,
+	ROUND(avg(total))
+FROM Invoice
+GROUP BY BillingCountry, BillingCity
+HAVING avg(total) > 5.00
+ORDER BY BillingCountry
+```
+
+## Nesting queries
+
+```sql
+-- Description: Return all invoices where total is less than the average
+
+SELECT
+	InvoiceDate,
+	BillingAddress,
+	BillingCity,
+	total
+FROM Invoice
+WHERE
+	total < (SELECT  Avg(total) FROM Invoice)
+ORDER BY
+	total DESC
+```
+
+### Aggregated subqueries
+
+```sql
+-- Description: Get cities average sale with global average
+
+SELECT
+	BillingCity,
+	Round(Avg(total),2) as CityAverage,
+	(SELECT Round(avg(total),2) FROM Invoice) as GlobalAverage
+FROM Invoice
+GROUP BY BillingCity
+ORDER BY BillingCity
+```
+
+### Non-aggregate subqueries
+
+```sql
+-- Description: Get all invoices that occur after a particular invoice
+
+SELECT
+	InvoiceDate,
+	BillingAddress,
+	BillingCity
+FROM INVOICE
+WHERE InvoiceDate >
+(SELECT
+	InvoiceDate
+	FROM Invoice
+	WHERE InvoiceId = 251)
+```
+
+### IN clause subquery
+
+Allows you to modify a query and narrow it down further
+
+```sql
+-- Description: Get details from Invoices id 251, 252 and 254
+
+ SELECT
+	InvoiceDate,
+	BillingAddress,
+	BillingCity
+FROM Invoice
+WHERE
+	InvoiceDate IN (
+	SELECT
+		InvoiceDate
+	FROM INVOICE
+	WHERE InvoiceId in (251, 252, 254)
+)
+```
+
+### Distinct subquery
+
+```sql
+-- Description: List all tracks by composer and name that do not occur in the Invoice table -- ie find unpopular songs.
+
+ SELECT
+	TrackId,
+	Composer,
+	Name,
+  GenreId
+ FROM Track
+ INNER JOIN
+ WHERE
+	TrackId NOT IN
+	(SELECT DISTINCT
+		TrackId
+	FROM InvoiceLine
+	ORDER BY
+		TrackId
+	)
+```
+
+```sql
+-- Description: Get data for best-selling tracks, accessing the genre name from the Genre table
+
+ SELECT
+	t.TrackId,
+	t.Composer,
+	t.Name,
+	g.Name
+ FROM Track as t
+INNER JOIN Genre as g
+	ON t.GenreId = g.GenreId
+ WHERE
+	t.TrackId NOT IN
+	(SELECT DISTINCT
+		li.TrackId
+	FROM InvoiceLine as li
+	ORDER BY
+		li.TrackId
+	)
+```
+
+## Stored queries
+
+### Creating a view
+
+A view is a query that can be stored and executed repeatedly or accessed by other queries. You can find it in the DB structure and browse data tabs.
+
+
+```sql
+-- Description: Create a view for the average total on our invoice table
+
+CREATE VIEW V_AvgTotal AS
+  SELECT
+	round(avg(total), 2) AS [Average total]
+FROM
+	Invoice
+```
+
+### Editing a view
+
+Views in SQLite are not modified with syntax - they are deleted and then recreated. We must drop first, or delete via right xlick.
+
+```sql
+-- Description: Update the average view to not round. Note that the bulk of the query will be generated if you right-click to delete the view.
+
+DROP VIEW IF EXISTS "main"."V_AvgTotal";
+CREATE VIEW V_AvgTotal AS
+ SELECT
+	avg(total)  AS [Average total]
+FROM
+	Invoice
+```
+
+### Joining views
+
+```sql
+-- Description: Create a view of invoices with track data
+
+CREATE VIEW V_Tracks_InvoiceLine AS
+SELECT
+	il.InvoiceId,
+	il.UnitPrice,
+	il.Quantity,
+	t.Name,
+	t.Composer,
+	t.Milliseconds
+FROM
+	InvoiceLine il
+INNER JOIN
+	Track t
+ON
+	il.TrackId = t.TrackId
+```
+
+### Deleting views
+
+```sql
+-- Description: Remove the average total view
+
+DROP VIEW
+	V_AvgTotal
+```
+
+## Adding, modifying and deleting data
+
+Data Manipulation Language (DML): SQL Statements used to alter data stored in the tables of a database.
+
+```
+INSERT
+UPDATE
+DELETE
+```
+
+### Inserting data
+
+```
+Description: Add a new artist to the catalog.
+
+INSERT INTO
+	Artist (Name)
+VALUES ('Bob Marley')
+```
+
+### Updating data
+
+Use with WHERE clause, otherwise it will update every row in the table!
+
+```
+Description: Update the artist name
+
+UPDATE
+	Artist
+SET Name = 'Damien Marley'
+WHERE ArtistId = 276
+```
+### Deleting data
+
+Use with WHERE clause, otherwise it will delete every row in the table!
+
+```
+Description: Remove the artist we just added
+
+DELETE FROM Artist
+WHERE ArtistId = 276
+```
