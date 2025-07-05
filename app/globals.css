@@ -25,6 +25,9 @@ ul {
   @apply list-disc pl-6;
   margin: 0.5em 0;
 }
+li {
+  margin: 0.5em 0 0 0;
+}
 
 article.mb-10:last-child {
   margin-bottom: 0;
@@ -105,13 +108,13 @@ article.mb-10:last-child {
   --sidebar-ring: oklch(0.708 0 0);
   --sh-class: #2d5e9d;
   --sh-identifier: #354150;
-  --sh-sign: #8996a3;
+  --sh-sign: #6b6b6b;
   --sh-property: #0550ae;
   --sh-entity: #249a97;
   --sh-jsxliterals: #6266d1;
   --sh-string: #00a99a;
   --sh-keyword: #f47067;
-  --sh-comment: #a19595;
+  --sh-comment: #6b6b6b;
 }
 
 .dark {
@@ -157,6 +160,14 @@ article.mb-10:last-child {
   }
 }
 
+.screenshot {
+  /* Add a gentle border and shadow to screenshots */
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin: 1em 0;
+}
+
 pre {
   margin: 0.5em 0;
   padding: 1em;
@@ -178,7 +189,7 @@ pre .sh__line::before {
   content: counter(sh-line-number);
   margin-right: 24px;
   text-align: right;
-  color: #a4a4a4;
+  color: #6b6b6b;
   width: 2em;
   display: inline-block;
 }
