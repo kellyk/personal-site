@@ -58,7 +58,7 @@ export default function HomeContent({posts }: { posts: BlogPost[] }) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number>(0);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number>(0);
-  
+
   // Contact form states
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -376,7 +376,7 @@ export default function HomeContent({posts }: { posts: BlogPost[] }) {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
             {submitStatus === 'success' && (
               <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-                Message sent successfully! I'll get back to you soon.
+                Message sent successfully! I&#39;ll get back to you soon.
               </div>
             )}
             {submitStatus === 'error' && (
