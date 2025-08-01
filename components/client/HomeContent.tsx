@@ -41,7 +41,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const Button = ({ children, ...props }: ButtonProps) => (
-  <button className="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-200" {...props}>
+  <button className="bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-pink-500" {...props}>
     {children}
   </button>
 );
@@ -58,6 +58,44 @@ export default function HomeContent({posts }: { posts: BlogPost[] }) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number>(0);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number>(0);
+  
+  // Contact form states
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Handle contact form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, message }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      setSubmitStatus('success');
+      setEmail('');
+      setMessage('');
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Shared function to navigate photos in both lightbox and carousel
   const navigatePhotos = useCallback((direction: 'left' | 'right') => {
@@ -335,20 +373,37 @@ export default function HomeContent({posts }: { posts: BlogPost[] }) {
           transition={{ delay: 0.8, duration: 0.6 }}
         >
           <h2 className="text-3xl font-semibold text-pink-700 mb-4">Contact</h2>
-          <form className="flex flex-col gap-4 max-w-md">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
+            {submitStatus === 'success' && (
+              <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
+                Message sent successfully! I'll get back to you soon.
+              </div>
+            )}
+            {submitStatus === 'error' && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
+                {errorMessage}
+              </div>
+            )}
             <Input
               type="email"
               placeholder="Your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={isSubmitting}
             />
             <textarea
-              className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-300"
+              className="border border-gray-300 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-pink-300 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Your message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              required
+              disabled={isSubmitting}
+              rows={4}
             />
-            <Button type="submit">Get in touch</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Sending...' : 'Get in touch'}
+            </Button>
           </form>
         </motion.section>
       </main>
