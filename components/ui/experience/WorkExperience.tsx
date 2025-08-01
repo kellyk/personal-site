@@ -1,6 +1,14 @@
 export default function WorkExperience() {
   const roles = [
     {
+      title: "Software Engineer",
+      company: "Microsoft AI",
+      dates: "August 2025 – Present",
+      accomplishments: [
+        'Building innovative AI-powered health solutions on Microsoft\'s AI Health team.',
+      ]
+    },
+    {
       title: "Staff Software Engineer",
       company: "Tumblr",
       dates: "March 2023 – April 2025",

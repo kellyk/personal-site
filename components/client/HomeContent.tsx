@@ -141,7 +141,7 @@ export default function HomeContent({posts }: { posts: BlogPost[] }) {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between px-6">
           <div className="text-center md:text-left mb-8 md:mb-0">
             <h1 className="text-5xl font-black font-sans text-pink-600 tracking-wide">Kelly King</h1>
-            <p className="text-lg mt-3 text-gray-700">Front End / Full Stack Engineer | Previously at Twitter and Tumblr</p>
+            <p className="text-lg mt-3 text-gray-700">Software Engineer at Microsoft AI | Previously at Twitter and Tumblr</p>
           </div>
             <Image
               src="/bae.jpg"
