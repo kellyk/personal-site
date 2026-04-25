@@ -314,12 +314,12 @@
     </div>
 
     <div class="result-main">
-      <div class="result-big" id="g-pace-mi">--:--</div>
-      <div class="result-unit">MIN / MILE</div>
+      <div class="result-big" id="g-pace-big">--:--</div>
+      <div class="result-unit" id="g-unit-big">MIN / MILE</div>
       <div class="result-secondary">
-        <div class="result-sec-item">
-          <div class="result-sec-val" id="g-pace-km">--:--</div>
-          <div class="result-sec-label">MIN / KM</div>
+        <div class="result-sec-item" onclick="swapPrimary()" style="cursor:pointer">
+          <div class="result-sec-val" id="g-pace-sec">--:--</div>
+          <div class="result-sec-label" id="g-unit-sec">MIN / KM</div>
         </div>
         <div class="result-sec-item">
           <div class="result-sec-val" id="g-kmh">--.-</div>
@@ -462,6 +462,7 @@
 const KM_PER_MI = 1.60934;
 let goalDistKm = 21.0975;
 let goalUnit = 'mi';
+let primaryUnit = 'mi';
 let nsOffsetSec = 0; // seconds per mile offset
 let chartDistKm = 21.0975;
 let chartUnit = 'mi';
@@ -569,7 +570,12 @@ function setDist(km, el) {
 }
 function setGoalUnit(u, el) {
   goalUnit = u;
+  primaryUnit = u;
   activePill(el.closest('.pill-group'), el);
+  calcGoal();
+}
+function swapPrimary() {
+  primaryUnit = primaryUnit === 'mi' ? 'km' : 'mi';
   calcGoal();
 }
 function setNS(sec, el) {
@@ -585,8 +591,11 @@ function calcGoal() {
   if (!totalSec||!goalDistKm) return;
   const avgKm = totalSec/goalDistKm;
   const avgMi = avgKm*KM_PER_MI;
-  document.getElementById('g-pace-mi').textContent = fmtPace(avgMi);
-  document.getElementById('g-pace-km').textContent = fmtPace(avgKm);
+  const isMi = primaryUnit === 'mi';
+  document.getElementById('g-pace-big').textContent = fmtPace(isMi ? avgMi : avgKm);
+  document.getElementById('g-unit-big').textContent = isMi ? 'MIN / MILE' : 'MIN / KM';
+  document.getElementById('g-pace-sec').textContent = fmtPace(isMi ? avgKm : avgMi);
+  document.getElementById('g-unit-sec').textContent = isMi ? 'MIN / KM' : 'MIN / MILE';
   document.getElementById('g-kmh').textContent = (3600/avgKm).toFixed(1);
   document.getElementById('g-mph').textContent = (3600/avgMi).toFixed(1);
   buildGoalSplits(totalSec, avgKm);
