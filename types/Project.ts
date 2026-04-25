@@ -4,4 +4,5 @@ export interface ProjectType {
   title: string;
   desc: string;
   details: string;
+  url?: string;
 }

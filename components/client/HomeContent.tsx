@@ -23,16 +23,18 @@ const photos = [
 
 const projects: ProjectType[] = [
   {
-    img: "https://images.unsplash.com/photo-1569230919100-d3fd5e1132f4?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFiaXRzfGVufDB8fDB8fHwy",
-    title: "Wellness Tracker",
-    desc: "A self-care dashboard that visualizes mood, energy, and habits.",
-    details: "Built with React, Chart.js, and Firebase. Helps users reflect on well-being trends and set goals."
+    img: "/styled.png",
+    title: "AI Styling App",
+    desc: "An AI-powered personal stylist that helps you build outfits you love.",
+    details: "Upload your wardrobe, get outfit recommendations, and discover your personal style — all powered by AI.",
+    url: "https://style.clothing"
   },
   {
-    img: "https://images.unsplash.com/photo-1600284536251-8bb98db53468?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    title: "Trail Mapper",
-    desc: "A hiking and running route planner powered by OpenStreetMap.",
-    details: "Maps trails with GPX import/export, elevation profiles, and offline caching support."
+    img: "/pace.png",
+    title: "Pace Calculator",
+    desc: "A simple running pace calculator for planning your next race or training run.",
+    details: "Enter your distance and goal time to get your target pace, or work backwards from a pace to find your finish time.",
+    url: "/pace-calculator"
   }
 ];
 
@@ -264,7 +266,17 @@ export default function HomeContent({posts }: { posts: BlogPost[] }) {
                   />
                   <h3 className="text-2xl font-bold text-indigo-700 mb-2">{activeProject.title}</h3>
                   <p className="text-gray-700 mb-2">{activeProject.desc}</p>
-                  <p className="text-sm text-gray-500">{activeProject.details}</p>
+                  <p className="text-sm text-gray-500 mb-4">{activeProject.details}</p>
+                  {activeProject.url && (
+                    <a
+                      href={activeProject.url}
+                      target={activeProject.url.startsWith("/") ? "_self" : "_blank"}
+                      rel="noopener noreferrer"
+                      className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-200"
+                    >
+                      Visit Project
+                    </a>
+                  )}
                 </motion.div>
               </motion.div>
             )}

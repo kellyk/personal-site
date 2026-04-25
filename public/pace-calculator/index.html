@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Pace</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ─── Dark theme (default) ─── */
+  body {
+    --bg:          #0f0f0f;
+    --fg:          #f5f5f5;
+    --fg-dim:      #aaa;
+    --fg-mute:     #555;
+    --fg-faint:    #333;
+    --border:      #1e1e1e;
+    --border-mid:  #2a2a2a;
+    --pill-border: #222;
+    --pill-active-border: #c8c8c8;
+    --pill-active-color:  #e0e0e0;
+    --pill-active-bg:     rgba(255,255,255,0.03);
+    --track-bg:    #1a1a1a;
+    --track-fill:  #333;
+    --tab-active:  #e0e0e0;
+    --result-big:  #f5f5f5;
+    --result-sec:  #aaa;
+    --split-pace:  #bbb;
+    --split-mid:   #4d4d4d;
+    --td-color:    #888;
+    --td-bright:   #ccc;
+    --td-first:    #555;
+    --grain-op:    0.04;
+    --toggle-icon: "○";
+  }
+
+  /* ─── Light theme ─── */
+  body.light {
+    --bg:          #f4f2ee;
+    --fg:          #1a1a1a;
+    --fg-dim:      #444;
+    --fg-mute:     #999;
+    --fg-faint:    #ccc;
+    --border:      #ddd;
+    --border-mid:  #ccc;
+    --pill-border: #ddd;
+    --pill-active-border: #1a1a1a;
+    --pill-active-color:  #1a1a1a;
+    --pill-active-bg:     rgba(0,0,0,0.04);
+    --track-bg:    #e0ddd8;
+    --track-fill:  #bbb;
+    --tab-active:  #1a1a1a;
+    --result-big:  #1a1a1a;
+    --result-sec:  #555;
+    --split-pace:  #333;
+    --split-mid:   #aaa;
+    --td-color:    #777;
+    --td-bright:   #222;
+    --td-first:    #999;
+    --grain-op:    0.025;
+    --toggle-icon: "●";
+  }
+
+  body {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh; min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    overflow-x: hidden;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .grain {
+    position: fixed; inset: 0; pointer-events: none;
+    opacity: var(--grain-op);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px;
+  }
+
+  .app {
+    position: relative; z-index: 1;
+    max-width: 400px; margin: 0 auto;
+    padding: 40px 24px 60px;
+    display: flex; flex-direction: column; gap: 28px;
+  }
+
+  /* ─── Header ─── */
+  .header {
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .header-center { text-align: center; }
+  .title { font-size: 13px; font-weight: 700; letter-spacing: 0.35em; color: var(--tab-active); }
+  .subtitle { font-size: 9px; letter-spacing: 0.22em; color: var(--fg-mute); margin-top: 3px; }
+
+  .theme-toggle {
+    position: absolute; right: 0;
+    background: transparent; border: none;
+    padding: 4px; cursor: pointer; -webkit-appearance: none;
+    color: var(--fg-mute); transition: color 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .theme-toggle:active { color: var(--fg); }
+  .theme-toggle svg { width: 18px; height: 18px; }
+  .icon-moon { display: block; }
+  .icon-sun  { display: none; }
+  body.light .icon-moon { display: none; }
+  body.light .icon-sun  { display: block; }
+
+  /* ─── Tabs ─── */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .tab-btn {
+    flex: 1; padding: 10px 0; background: transparent; border: none;
+    font-family: inherit; font-size: 9px; font-weight: 600;
+    letter-spacing: 0.2em; color: var(--fg-mute); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s; -webkit-appearance: none;
+  }
+  .tab-btn.active { color: var(--tab-active); border-bottom-color: var(--tab-active); }
+
+  .panel { display: none; flex-direction: column; gap: 24px; }
+  .panel.active { display: flex; }
+
+  .sec-label { font-size: 9px; letter-spacing: 0.28em; color: var(--fg-mute); margin-bottom: 8px; }
+
+  /* ─── Pills ─── */
+  .pill-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    padding: 7px 14px; border-radius: 4px;
+    border: 1px solid var(--pill-border); background: transparent;
+    color: var(--fg-mute); font-family: inherit; font-size: 11px;
+    letter-spacing: 0.08em; cursor: pointer;
+    transition: all 0.13s; -webkit-appearance: none;
+  }
+  .pill.active {
+    border-color: var(--pill-active-border);
+    color: var(--pill-active-color);
+    background: var(--pill-active-bg);
+  }
+  .pill.green.active { border-color: #4caf88; color: #4caf88; }
+
+  /* ─── Time input ─── */
+  .time-input-row { display: flex; gap: 6px; align-items: center; }
+  .time-field { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .time-field input {
+    width: 64px; text-align: center;
+    font-family: inherit; font-size: 28px; font-weight: 300;
+    background: transparent; border: none; border-bottom: 1px solid var(--border-mid);
+    color: var(--result-big); outline: none; padding: 4px 0;
+    font-variant-numeric: tabular-nums; -webkit-appearance: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .time-field input:focus { border-bottom-color: var(--fg-mute); }
+  .time-field-label { font-size: 9px; letter-spacing: 0.2em; color: var(--fg-mute); }
+  .time-sep { font-size: 28px; font-weight: 300; color: var(--fg-faint); padding-bottom: 14px; }
+
+  /* ─── Result ─── */
+  .result-main {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .result-big { font-size: 56px; font-weight: 300; color: var(--result-big); font-variant-numeric: tabular-nums; line-height: 1; transition: color 0.2s; }
+  .result-unit { font-size: 9px; letter-spacing: 0.28em; color: var(--fg-mute); margin-top: 6px; }
+  .result-secondary { display: flex; gap: 24px; margin-top: 14px; }
+  .result-sec-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .result-sec-val { font-size: 16px; font-weight: 400; color: var(--result-sec); font-variant-numeric: tabular-nums; transition: color 0.2s; }
+  .result-sec-label { font-size: 8px; letter-spacing: 0.2em; color: var(--fg-mute); }
+
+  /* ─── Split visual ─── */
+  .split-visual { display: flex; flex-direction: column; gap: 14px; }
+  .split-track-wrap { position: relative; height: 4px; border-radius: 2px; overflow: hidden; background: var(--track-bg); transition: background 0.2s; }
+  .split-track-first { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; background: var(--track-fill); transition: background 0.2s; }
+  .split-track-second { position: absolute; left: 50%; top: 0; bottom: 0; right: 0; background: var(--track-fill); transition: background 0.25s; }
+  .split-track-second.green { background: #4caf88; }
+
+  .split-labels { display: flex; align-items: flex-start; }
+  .split-half { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .split-half.right { align-items: flex-end; }
+  .split-pace { font-size: 22px; font-weight: 300; color: var(--split-pace); font-variant-numeric: tabular-nums; transition: color 0.25s; }
+  .split-pace.green { color: #4caf88; }
+  .split-half-label { font-size: 8px; letter-spacing: 0.18em; color: var(--fg-mute); }
+  .split-midpoint { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0 12px; flex-shrink: 0; }
+  .split-mid-val { font-size: 12px; color: var(--split-mid); font-variant-numeric: tabular-nums; transition: color 0.2s; }
+  .split-mid-label { font-size: 7px; letter-spacing: 0.15em; color: var(--fg-faint); }
+
+  /* ─── Tables ─── */
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 8px; letter-spacing: 0.2em; color: var(--fg-mute); font-weight: 600; text-align: right; padding: 0 6px 8px; }
+  th:first-child { text-align: left; padding-left: 0; }
+  td { font-size: 12px; color: var(--td-color); text-align: right; padding: 9px 6px; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; transition: color 0.2s; }
+  td:first-child { text-align: left; padding-left: 0; color: var(--td-first); }
+  td.fast { color: #4caf88; }
+  td.bright { color: var(--td-bright); }
+
+  /* ─── Convert ─── */
+  .conv-field input {
+    font-family: inherit; font-size: 32px; font-weight: 300;
+    background: transparent; border: none; border-bottom: 1px solid var(--border-mid);
+    color: var(--result-big); outline: none; padding: 4px 0; width: 100%;
+    font-variant-numeric: tabular-nums; -webkit-appearance: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .conv-field input:focus { border-bottom-color: var(--fg-mute); }
+  .conv-sub { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--border); }
+  .conv-speed { display: flex; gap: 16px; padding-top: 10px; margin-top: 2px; opacity: 0.5; }
+  .conv-stat { display: flex; flex-direction: column; gap: 3px; }
+  .conv-stat-val { font-size: 15px; color: var(--td-color); font-variant-numeric: tabular-nums; }
+  .conv-stat-label { font-size: 8px; letter-spacing: 0.2em; color: var(--fg-mute); }
+
+  .chart-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .chart-table-wrap table th { padding: 0 10px 8px; }
+  .chart-table-wrap table td { padding: 9px 10px; font-size: 12px; }
+  .chart-table-wrap table td:first-child { color: var(--td-bright); }
+  .chart-table-wrap table td:nth-child(2) { color: var(--fg-mute); }
+
+  .ref-table td { font-size: 11px; padding: 7px 6px; }
+  .ref-table th { padding: 0 6px 7px; }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<div class="app">
+
+  <div class="header">
+    <div class="header-center">
+      <div class="title">PACE</div>
+      <div class="subtitle">running calculator</div>
+    </div>
+    <button class="theme-toggle" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('goal')">GOAL</button>
+    <button class="tab-btn" onclick="switchTab('convert')">CONVERT</button>
+    <button class="tab-btn" onclick="switchTab('chart')">CHART</button>
+  </div>
+
+  <!-- GOAL -->
+  <div class="panel active" id="panel-goal">
+
+    <div>
+      <div class="sec-label">DISTANCE</div>
+      <div class="pill-group" id="dist-pills">
+        <button class="pill" onclick="setDist(42.195,this)">MARATHON</button>
+        <button class="pill active" onclick="setDist(21.0975,this)">HALF</button>
+        <button class="pill" onclick="setDist(10,this)">10K</button>
+        <button class="pill" onclick="setDist(5,this)">5K</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-label">GOAL TIME</div>
+      <div class="time-input-row">
+        <div class="time-field">
+          <input type="number" id="g-h" min="0" max="9" value="1" oninput="calcGoal()">
+          <span class="time-field-label">H</span>
+        </div>
+        <span class="time-sep">:</span>
+        <div class="time-field">
+          <input type="number" id="g-m" min="0" max="59" value="45" oninput="calcGoal()">
+          <span class="time-field-label">M</span>
+        </div>
+        <span class="time-sep">:</span>
+        <div class="time-field">
+          <input type="number" id="g-s" min="0" max="59" value="00" oninput="calcGoal()">
+          <span class="time-field-label">S</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-main">
+      <div class="result-big" id="g-pace-mi">--:--</div>
+      <div class="result-unit">MIN / MILE</div>
+      <div class="result-secondary">
+        <div class="result-sec-item">
+          <div class="result-sec-val" id="g-pace-km">--:--</div>
+          <div class="result-sec-label">MIN / KM</div>
+        </div>
+        <div class="result-sec-item">
+          <div class="result-sec-val" id="g-kmh">--.-</div>
+          <div class="result-sec-label">KM/H</div>
+        </div>
+        <div class="result-sec-item">
+          <div class="result-sec-val" id="g-mph">--.-</div>
+          <div class="result-sec-label">MPH</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-label">NEGATIVE SPLIT</div>
+      <div class="pill-group">
+        <button class="pill active" onclick="setNS(0,this)">EVEN</button>
+        <button class="pill green" onclick="setNS(5,this)">SMALL</button>
+        <button class="pill green" onclick="setNS(10,this)">LARGE</button>
+      </div>
+      <div style="font-size:9px;color:var(--fg-mute);letter-spacing:0.05em;margin-top:8px;line-height:1.6" id="ns-hint">
+        Run both halves at the same pace.
+      </div>
+    </div>
+
+    <div class="split-visual">
+      <div class="split-track-wrap">
+        <div class="split-track-first"></div>
+        <div class="split-track-second" id="sv-track"></div>
+      </div>
+      <div class="split-labels">
+        <div class="split-half">
+          <div class="split-pace" id="sv-first">--:--</div>
+          <div class="split-half-label">FIRST HALF</div>
+        </div>
+        <div class="split-midpoint">
+          <div class="split-mid-val" id="sv-mid">--:--</div>
+          <div class="split-mid-label">HALFWAY</div>
+        </div>
+        <div class="split-half right">
+          <div class="split-pace" id="sv-second">--:--</div>
+          <div class="split-half-label">SECOND HALF</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-label">SPLITS IN</div>
+      <div class="pill-group">
+        <button class="pill active" onclick="setGoalUnit('mi',this)">MILES</button>
+        <button class="pill" onclick="setGoalUnit('km',this)">KM</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-label">SPLIT TIMES</div>
+      <table>
+        <thead><tr id="goal-thead"></tr></thead>
+        <tbody id="goal-tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- CONVERT -->
+  <div class="panel" id="panel-convert">
+
+    <div>
+      <div class="sec-label">MIN / MILE</div>
+      <div class="conv-field">
+        <input type="text" id="c-mi" value="8:00" oninput="convFrom('mi')" placeholder="8:00">
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-label">MIN / KM</div>
+      <div class="conv-field">
+        <input type="text" id="c-km" value="4:58" oninput="convFrom('km')" placeholder="4:58">
+      </div>
+    </div>
+
+    <div class="conv-sub">
+      <div class="conv-stat"><div class="conv-stat-val" id="c-5k">--:--</div><div class="conv-stat-label">5K</div></div>
+      <div class="conv-stat"><div class="conv-stat-val" id="c-10k">--:--</div><div class="conv-stat-label">10K</div></div>
+      <div class="conv-stat"><div class="conv-stat-val" id="c-hm">--:--</div><div class="conv-stat-label">HALF</div></div>
+      <div class="conv-stat"><div class="conv-stat-val" id="c-fm">--:--</div><div class="conv-stat-label">MARA</div></div>
+    </div>
+    <div class="conv-speed">
+      <div class="conv-stat"><div class="conv-stat-val" id="c-kmh">--.-</div><div class="conv-stat-label">KM/H</div></div>
+      <div class="conv-stat"><div class="conv-stat-val" id="c-mph">--.-</div><div class="conv-stat-label">MPH</div></div>
+    </div>
+
+    <div>
+      <div class="sec-label">QUICK REFERENCE</div>
+      <table class="ref-table">
+        <thead><tr>
+          <th style="text-align:left">MIN/MI</th>
+          <th style="text-align:right">MIN/KM</th>
+          <th style="text-align:right">KM/H</th>
+          <th style="text-align:right">MPH</th>
+        </tr></thead>
+        <tbody id="ref-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- CHART -->
+  <div class="panel" id="panel-chart">
+
+    <div>
+      <div class="sec-label">DISTANCE</div>
+      <div class="pill-group" id="chart-dist-pills">
+        <button class="pill" onclick="setChartDist(42.195,this)">MARATHON</button>
+        <button class="pill active" onclick="setChartDist(21.0975,this)">HALF</button>
+        <button class="pill" onclick="setChartDist(10,this)">10K</button>
+        <button class="pill" onclick="setChartDist(5,this)">5K</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="sec-label">UNITS</div>
+      <div class="pill-group">
+        <button class="pill active" onclick="setChartUnit('mi',this)">MILES</button>
+        <button class="pill" onclick="setChartUnit('km',this)">KM</button>
+      </div>
+    </div>
+
+    <div class="chart-table-wrap">
+      <table>
+        <thead><tr id="chart-head"></tr></thead>
+        <tbody id="chart-body"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const KM_PER_MI = 1.60934;
+let goalDistKm = 21.0975;
+let goalUnit = 'mi';
+let nsOffsetSec = 0; // seconds per mile offset
+let chartDistKm = 21.0975;
+let chartUnit = 'mi';
+let isLight = false;
+
+function toggleTheme() {
+  isLight = !isLight;
+  document.body.classList.toggle('light', isLight);
+
+}
+
+function parsePace(str) {
+  const p = (str||'').split(':');
+  if (p.length < 2) return null;
+  const m = parseInt(p[0]), s = parseInt(p[1]);
+  if (isNaN(m)||isNaN(s)) return null;
+  return m*60+s;
+}
+function fmtPace(sec) {
+  if (!sec||sec<=0) return '--:--';
+  const m = Math.floor(sec/60), s = Math.round(sec%60);
+  return m+':'+(s<10?'0':'')+s;
+}
+function fmtTime(sec) {
+  if (!sec||sec<=0) return '--:--';
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=Math.round(sec%60);
+  if (h>0) return h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  return m+':'+(s<10?'0':'')+s;
+}
+function activePill(group, el) {
+  group.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.tab-btn')[{goal:0,convert:1,chart:2}[name]].classList.add('active');
+}
+const distDefaults = {
+  42.195:   3*3600+45*60,
+  21.0975:  1*3600+45*60,
+  10:       50*60,
+  5:        25*60
+};
+let lastDistKm = 21.0975;
+let lastTimeSec = 1*3600+45*60;
+
+function riegel(t1, d1, d2) {
+  return t1 * Math.pow(d2/d1, 1.06);
+}
+
+function setDist(km, el) {
+  // Save current time before switching
+  const h = parseInt(document.getElementById('g-h').value)||0;
+  const m = parseInt(document.getElementById('g-m').value)||0;
+  const s = parseInt(document.getElementById('g-s').value)||0;
+  const currentSec = h*3600+m*60+s;
+  if (currentSec > 0) {
+    lastDistKm = goalDistKm;
+    lastTimeSec = currentSec;
+  }
+
+  goalDistKm = km;
+  activePill(document.getElementById('dist-pills'), el);
+
+  // Use Riegel if we have a real user time, otherwise fall back to defaults
+  const predicted = lastTimeSec > 0 && lastDistKm !== km
+    ? riegel(lastTimeSec, lastDistKm, km)
+    : distDefaults[km];
+
+  const total = Math.round(predicted);
+  const ph = Math.floor(total/3600);
+  const pm = Math.floor((total%3600)/60);
+  const ps = total%60;
+  document.getElementById('g-h').value = ph;
+  document.getElementById('g-m').value = pm;
+  document.getElementById('g-s').value = ps < 10 ? '0'+ps : ps;
+  calcGoal();
+}
+function setGoalUnit(u, el) {
+  goalUnit = u;
+  activePill(el.closest('.pill-group'), el);
+  calcGoal();
+}
+function setNS(sec, el) {
+  nsOffsetSec = sec;
+  activePill(el.closest('.pill-group'), el);
+  calcGoal();
+}
+function calcGoal() {
+  const h = parseInt(document.getElementById('g-h').value)||0;
+  const m = parseInt(document.getElementById('g-m').value)||0;
+  const s = parseInt(document.getElementById('g-s').value)||0;
+  const totalSec = h*3600+m*60+s;
+  if (!totalSec||!goalDistKm) return;
+  const avgKm = totalSec/goalDistKm;
+  const avgMi = avgKm*KM_PER_MI;
+  document.getElementById('g-pace-mi').textContent = fmtPace(avgMi);
+  document.getElementById('g-pace-km').textContent = fmtPace(avgKm);
+  document.getElementById('g-kmh').textContent = (3600/avgKm).toFixed(1);
+  document.getElementById('g-mph').textContent = (3600/avgMi).toFixed(1);
+  buildGoalSplits(totalSec, avgKm);
+}
+function updateNsHint(avgPaceMi) {
+  const hint = document.getElementById('ns-hint');
+  if (!nsOffsetSec) {
+    hint.textContent = 'Run both halves at the same pace.';
+    return;
+  }
+  const isKm = goalUnit === 'km';
+  const unitLabel = isKm ? 'km' : 'mi';
+  const offset = isKm ? Math.round(nsOffsetSec / KM_PER_MI) : nsOffsetSec;
+  hint.textContent = `First half ${offset}s/${unitLabel} slower, second half ${offset}s/${unitLabel} faster than average.`;
+}
+
+function buildGoalSplits(totalSec, avgPaceKm) {
+  const isKm = goalUnit==='km';
+  const unitDist = isKm ? 1 : KM_PER_MI;
+  const unitLabel = isKm ? 'km' : 'mi';
+  const halfKm = goalDistKm/2;
+  // nsOffsetSec is in sec/mi; convert to sec/km for internal calculations
+  const offsetKm = nsOffsetSec / KM_PER_MI;
+  const firstPaceKm  = avgPaceKm + offsetKm;
+  const secondPaceKm = avgPaceKm - offsetKm;
+  const firstPaceUnit  = isKm ? firstPaceKm  : firstPaceKm*KM_PER_MI;
+  const secondPaceUnit = isKm ? secondPaceKm : secondPaceKm*KM_PER_MI;
+
+  document.getElementById('sv-first').textContent = fmtPace(firstPaceUnit);
+  document.getElementById('sv-second').textContent = fmtPace(secondPaceUnit);
+  document.getElementById('sv-second').className = 'split-pace' + (nsOffsetSec>0 ? ' green' : '');
+  document.getElementById('sv-mid').textContent = fmtTime(firstPaceKm * halfKm);
+  document.getElementById('sv-track').className = 'split-track-second' + (nsOffsetSec>0 ? ' green' : '');
+  updateNsHint();
+
+  const totalUnits = goalDistKm/unitDist;
+  const count = Math.ceil(totalUnits);
+  const splits = [];
+  let elapsed = 0;
+  for (let i=1; i<=count; i++) {
+    const startKm = (i-1)*unitDist;
+    const endKm = Math.min(i*unitDist, goalDistKm);
+    const frac = (endKm-startKm)/unitDist;
+    let paceKm;
+    if (endKm<=halfKm) paceKm = firstPaceKm;
+    else if (startKm>=halfKm) paceKm = secondPaceKm;
+    else {
+      const f1=halfKm-startKm, f2=endKm-halfKm;
+      paceKm = (f1*firstPaceKm + f2*secondPaceKm)/(f1+f2);
+    }
+    const paceUnit = isKm ? paceKm : paceKm*KM_PER_MI;
+    elapsed += paceKm*unitDist*frac;
+    splits.push({i, frac, paceUnit, elapsed, isSecond: startKm>=halfKm && nsOffsetSec>0});
+  }
+  document.getElementById('goal-thead').innerHTML =
+    `<th>${unitLabel.toUpperCase()}</th><th style="text-align:right">PACE</th><th style="text-align:right">ELAPSED</th>`;
+  document.getElementById('goal-tbody').innerHTML = splits.map(sp => {
+    const lbl = sp.i < count || sp.frac > 0.98 ? sp.i : sp.i+'*';
+    return `<tr><td>${lbl}</td><td class="${sp.isSecond?'fast':'bright'}">${fmtPace(sp.paceUnit)}</td><td class="bright">${fmtTime(sp.elapsed)}</td></tr>`;
+  }).join('');
+}
+function convFrom(changed) {
+  let miSec, kmSec;
+  if (changed==='mi') {
+    miSec = parsePace(document.getElementById('c-mi').value);
+    if (!miSec) return;
+    kmSec = miSec/KM_PER_MI;
+    document.getElementById('c-km').value = fmtPace(kmSec);
+  } else {
+    kmSec = parsePace(document.getElementById('c-km').value);
+    if (!kmSec) return;
+    miSec = kmSec*KM_PER_MI;
+    document.getElementById('c-mi').value = fmtPace(miSec);
+  }
+  document.getElementById('c-kmh').textContent = (3600/kmSec).toFixed(1);
+  document.getElementById('c-mph').textContent = (3600/miSec).toFixed(1);
+  document.getElementById('c-5k').textContent  = fmtTime(kmSec*5);
+  document.getElementById('c-10k').textContent = fmtTime(kmSec*10);
+  document.getElementById('c-hm').textContent  = fmtTime(kmSec*21.0975);
+  document.getElementById('c-fm').textContent  = fmtTime(kmSec*42.195);
+}
+function buildRefTable() {
+  const paces = [[5,0],[5,30],[6,0],[6,30],[7,0],[7,30],[8,0],[8,30],[9,0],[9,30],[10,0],[11,0],[12,0]];
+  document.getElementById('ref-body').innerHTML = paces.map(([m,s]) => {
+    const mi=m*60+s, km=mi/KM_PER_MI;
+    return `<tr><td style="text-align:left">${fmtPace(mi)}</td><td>${fmtPace(km)}</td><td>${(3600/km).toFixed(1)}</td><td>${(3600/mi).toFixed(1)}</td></tr>`;
+  }).join('');
+}
+function setChartDist(km, el) {
+  chartDistKm = km;
+  activePill(document.getElementById('chart-dist-pills'), el);
+  buildChart();
+}
+function setChartUnit(u, el) {
+  chartUnit = u;
+  activePill(el.closest('.pill-group'), el);
+  buildChart();
+}
+function buildChart() {
+  const isKm = chartUnit==='km';
+  const unitDist = isKm ? 1 : KM_PER_MI;
+  const unitLabel = isKm ? 'km' : 'mi';
+  // Milestones always in km internally; labels formatted per unit
+  const milestonesKm = isKm
+    ? { 42.195:[5,10,21.0975,30,42.195], 21.0975:[5,10,15,21.0975], 10:[3,5,8,10], 5:[1,2,3,4,5] }[chartDistKm]
+    : { 42.195:[KM_PER_MI*3.1,KM_PER_MI*6.2,KM_PER_MI*13.1,KM_PER_MI*20,42.195], 21.0975:[KM_PER_MI*3.1,KM_PER_MI*6.2,KM_PER_MI*10,21.0975], 10:[KM_PER_MI*2,KM_PER_MI*4,KM_PER_MI*6,10], 5:[KM_PER_MI,KM_PER_MI*2,KM_PER_MI*3,5] }[chartDistKm];
+
+  const mileLabels = milestonesKm.map((km, i) => {
+    const isFinish = i === milestonesKm.length - 1;
+    if (isFinish) return 'finish';
+    if (isKm) {
+      const v = parseFloat(km.toFixed(1));
+      return v + 'km';
+    }
+    const u = km / unitDist;
+    return parseFloat(u.toFixed(1)) + unitLabel;
+  });
+  document.getElementById('chart-head').innerHTML =
+    `<th style="text-align:left">FINISH</th><th style="text-align:right">/${unitLabel}</th>`
+    + mileLabels.map(l=>`<th style="text-align:right">${l}</th>`).join('');
+  const [startMin,endMin,stepSec] = chartDistKm>=40?[155,340,300]:chartDistKm>=20?[70,160,150]:chartDistKm>=9?[28,75,120]:[13,40,60];
+  let rows = '';
+  for (let sec=startMin*60; sec<=endMin*60; sec+=stepSec) {
+    const paceKm = sec/chartDistKm;
+    const paceUnit = isKm ? paceKm : paceKm*KM_PER_MI;
+    rows += `<tr><td>${fmtTime(sec)}</td><td>${fmtPace(paceUnit)}</td>`
+      + milestonesKm.map((km,i)=>`<td${i===milestonesKm.length-1?' style="color:var(--fg-mute)"':''}>${fmtTime(paceKm*km)}</td>`).join('')
+      + '</tr>';
+  }
+  document.getElementById('chart-body').innerHTML = rows;
+}
+
+calcGoal();
+convFrom('mi');
+buildRefTable();
+buildChart();
+</script>
+</body>
+</html>
